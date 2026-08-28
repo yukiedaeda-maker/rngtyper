@@ -1,0 +1,3151 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NEON RNG TYPING FACTORY — ストーリーミッション＆限定オーラ</title>
+<style>
+  :root{
+    --bg:#000000;
+    --neonC:#00ffa6;    /* Common green */
+    --neonUC:#6cf9ff;   /* Uncommon cyan */
+    --neonR:#3aa0ff;    /* Rare blue */
+    --neonE:#a96cff;    /* Epic purple */
+    --neonL:#ff9f42;    /* Legendary orange */
+    --neonM:#ff5ac8;    /* Mythical pink */
+    --neonCe:#eaf6ff;   /* Celestial silver white */
+    --neonG:#ffd642;    /* GOD gold */
+    --neonD:#6d00a3;    /* DARKNESS purple-black */
+    --neonEl:#32ff77;   /* ELEMENT lively green */
+
+    --fire:#ff3d3d;
+    --snow:#eaf6ff;
+    --ice:#8fe3ff;
+    --lucky:#ffd700;
+    --rainbow1:#ff004c; --rainbow2:#ff8a00; --rainbow3:#ffee00; --rainbow4:#00ff6a; --rainbow5:#00baff; --rainbow6:#a96cff;
+
+    --gold:#ffd166;
+    --text:#e8f7ff;
+    --muted:#85a3cc;
+
+    --glitch:#ff0055;
+    --timeleap:#00ffaa;
+    --catnight:#ffaa00;
+    --supernova:#ffaaee;
+    --ultimate:#ff0000;
+    --blackhole:#a800ff;
+    --stone:#9c9c9c;
+    --brk:#c97a2b;
+    --crystal:#7fdfff;
+    --obsidian:#7b2fff;
+    --zombie:#39ff14;
+    --berserk:#ff0000;
+    --overlord1:#800000;
+    --overlord2:#000000;
+    --dirt:#654321;
+    --water:#00bfff;
+    --lightning:#ffff00;
+    --compressedDirt:#8b6f47;
+    --demonicLump:#6a0dad; --grass:#00ff00; --blood:#8a0000; --human:#ffffff;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:#000;color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Noto Sans JP","Hiragino Kaku Gothic ProN","Meiryo",sans-serif;overscroll-behavior:none}
+  #wrap{transform:translateZ(0)}
+  #app{max-width:1680px;margin:0 auto;padding:14px}
+  header{
+    display:grid;grid-template-columns:1fr 1fr 1fr 1.5fr auto;gap:12px;align-items:center;position:relative;overflow:hidden;
+    padding:12px;border-radius:16px;background:#020202;border:1px solid rgba(16,231,255,.25);
+    box-shadow:0 0 30px rgba(16,231,255,.18), inset 0 0 38px rgba(255,77,255,.08)
+  }
+  #hdrButtons{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+  .hdrBtn{
+    position:relative;cursor:pointer;border:1px solid rgba(0,255,255,.4);border-radius:12px;padding:10px 16px;
+    font-weight:900;font-size:13px;letter-spacing:.02em;color:#eafcff;font-family:inherit;
+    background:linear-gradient(180deg,rgba(12,22,32,.92),rgba(4,10,16,.92));
+    box-shadow:0 0 14px rgba(0,255,255,.25), inset 0 0 12px rgba(0,255,255,.08);
+    transition:transform .15s ease, box-shadow .2s ease, filter .2s ease;white-space:nowrap
+  }
+  .hdrBtn:hover{transform:translateY(-2px);filter:brightness(1.18)}
+  .hdrBtn:active{transform:translateY(1px)}
+  .hdrBtn.craft{border-color:rgba(169,108,255,.6);box-shadow:0 0 14px rgba(169,108,255,.4), inset 0 0 12px rgba(169,108,255,.14)}
+  .hdrBtn.ach{border-color:rgba(255,214,66,.6);box-shadow:0 0 14px rgba(255,214,66,.4), inset 0 0 12px rgba(255,214,66,.14)}
+  .hdrBtn.mission{border-color:rgba(16,231,255,.6);box-shadow:0 0 14px rgba(16,231,255,.4), inset 0 0 12px rgba(16,231,255,.14)}
+  .hdrBtn.items{border-color:rgba(0,255,120,.65);box-shadow:0 0 14px rgba(0,255,120,.42), inset 0 0 12px rgba(0,255,120,.14)}
+
+  /* ===== Modal overlay system (craft / achievements / missions) =====
+     Default: display:none (completely hidden). JS sets display:flex on open. */
+  #modalBackdrop{
+    position:fixed;inset:0;z-index:9998;display:none;
+    background:rgba(0,0,0,.82);backdrop-filter:blur(6px);
+    opacity:0;transition:opacity .22s ease
+  }
+  #modalBackdrop.open{display:block;opacity:1}
+  body.modalNoScroll{overflow:hidden}
+  #craftPanel,#missions,#achievements,#itemsPanel{display:none}
+  #craftPanel.modalOpen,#missions.modalOpen,#achievements.modalOpen,#itemsPanel.modalOpen{
+    display:flex !important;flex-direction:column !important;
+    position:fixed !important;left:50% !important;top:50% !important;
+    transform:translate(-50%,-50%) scale(1) !important;
+    width:min(560px,92vw) !important;max-width:560px !important;max-height:84vh !important;overflow-y:auto !important;
+    z-index:9999 !important;padding:22px 20px 26px !important;border-radius:20px !important;margin:0 !important;
+    background:rgba(4,8,14,.97) !important;
+    box-shadow:0 30px 90px rgba(0,0,0,.7) !important;
+    animation:modalIn .28s cubic-bezier(.2,.9,.2,1) forwards
+  }
+  @keyframes modalIn{0%{transform:translate(-50%,-46%) scale(.88);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+  #craftPanel.modalOpen{border:1px solid rgba(169,108,255,.55) !important;box-shadow:0 0 60px rgba(169,108,255,.35), inset 0 0 40px rgba(169,108,255,.1) !important}
+  #achievements.modalOpen{border:1px solid rgba(255,214,66,.55) !important;box-shadow:0 0 60px rgba(255,214,66,.35), inset 0 0 40px rgba(255,214,66,.1) !important}
+  #missions.modalOpen{border:1px solid rgba(16,231,255,.55) !important;box-shadow:0 0 60px rgba(16,231,255,.35), inset 0 0 40px rgba(16,231,255,.1) !important}
+  #itemsPanel.modalOpen{border:1px solid rgba(0,255,120,.55) !important;box-shadow:0 0 60px rgba(0,255,120,.35), inset 0 0 40px rgba(0,255,120,.1) !important}
+  .itemRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid rgba(0,255,170,.18);border-radius:12px;background:rgba(5,14,14,.88);margin:8px 0}.itemName{font-weight:900}.itemCount{color:#7fffd4;font-weight:900}.itemUseBtn{border:1px solid #00ff9d;background:rgba(0,255,157,.12);color:#dffff4;border-radius:9px;padding:7px 12px;font-weight:900;cursor:pointer}.itemUseBtn:disabled{opacity:.45;cursor:default}.potionTimer{margin:10px 0;padding:10px;border-radius:10px;text-align:center;font-weight:1000;color:#ffff00;background:rgba(255,255,0,.08);border:1px solid rgba(255,255,0,.4);box-shadow:0 0 20px rgba(255,255,0,.18)}
+  .modalCloseBtn{
+    position:absolute;top:12px;right:14px;width:36px;height:36px;border-radius:50%;
+    border:1px solid rgba(0,255,255,.65);background:rgba(255,20,80,.18);color:#fff;
+    font-size:17px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 16px rgba(0,255,255,.4);transition:background .18s ease, transform .18s ease;z-index:10000
+  }
+  .modalCloseBtn:hover{background:rgba(255,20,80,.45);transform:rotate(90deg) scale(1.05)}
+  .stat{display:flex;align-items:baseline;gap:10px}
+  .stat .lbl{font-size:12px;color:var(--muted);letter-spacing:.12em}
+  .stat .val{font-weight:900;font-size:30px;text-shadow:0 0 18px rgba(16,231,255,.45)}
+  small{font-size:12px;color:#77a9ff}
+  #mult{color:var(--neonC)}
+  #equipBadge{
+    justify-self:end;font-weight:1000;padding:8px 14px;border-radius:999px;color:#001b1b;font-size:18px;letter-spacing:.04em;
+    background:linear-gradient(90deg,#0ff,#00ffa6);box-shadow:0 0 18px rgba(0,255,230,.55)
+  }
+
+  main{display:grid;grid-template-columns:380px 1fr 420px;gap:14px;margin-top:14px}
+
+  /* Aura Odds / Collection (left) */
+  #auraPanel{
+    border-radius:18px;border:1px solid rgba(0,255,255,.25);padding:12px;min-height:720px;background:rgba(0,0,0,.7);
+    box-shadow:0 0 30px rgba(0,255,255,.1), inset 0 0 28px rgba(0,255,170,.08)
+  }
+  #auraPanel h3{margin:0 0 8px}
+  .odds{
+    font-size:12px;color:#9fd9ff;border:1px solid rgba(0,255,255,.2);border-radius:10px;padding:8px;background:rgba(6,18,26,.7);
+    box-shadow:inset 0 0 20px rgba(10,50,80,.2);margin-bottom:10px
+  }
+  .odds .row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+  .odds .row:last-child{border-bottom:none}
+  .oddName{font-weight:900;display:flex;align-items:center;gap:8px}
+  .tagM{font-size:11px;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:2px 6px;color:#bfe6ff}
+  .nC{color:var(--neonC)} .nUC{color:var(--neonUC)} .nR{color:var(--neonR)} .nE{color:var(--neonE)} .nL{color:var(--neonL)} .nM{color:var(--neonM)} .nCe{color:var(--neonCe)} .nG{color:var(--neonG)} .nD{color:var(--neonD)}
+  .nFire{color:var(--fire)} .nSnow{color:var(--snow)} .nIce{color:var(--ice)} .nLucky{color:var(--lucky)} .nRB{background:linear-gradient(90deg,var(--rainbow1),var(--rainbow2),var(--rainbow3),var(--rainbow4),var(--rainbow5),var(--rainbow6)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .nGlitch{color:var(--glitch)} .nTimeLeap{color:var(--timeleap)} .nCatNight{color:var(--catnight)} .nSupernova{color:var(--supernova)} .nUltimate{color:var(--ultimate)} .nBlackHole{color:var(--blackhole)}
+  .nStone{color:var(--stone)} .nBreak{color:var(--brk)} .nCrystal{color:var(--crystal)} .nObsidian{color:var(--obsidian)}
+  .nZombie{color:var(--zombie);text-shadow:0 0 10px rgba(57,255,20,.8)} .nBerserk{color:var(--berserk);text-shadow:0 0 10px rgba(255,0,0,.8)}
+  .nOverlord{background:linear-gradient(135deg,var(--overlord1),var(--overlord2),var(--overlord1));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:1000;text-shadow:0 0 14px rgba(128,0,0,.6)}
+  .nProTyper{background:linear-gradient(90deg,var(--rainbow1),var(--rainbow2),var(--rainbow3),var(--rainbow4),var(--rainbow5),var(--rainbow6),var(--rainbow1));background-size:400% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:protyperFlow 3s linear infinite;font-weight:1000}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .dC{background:var(--neonC)} .dUC{background:var(--neonUC)} .dR{background:var(--neonR)} .dE{background:var(--neonE)} .dL{background:var(--neonL)} .dM{background:var(--neonM)} .dCe{background:var(--neonCe)} .dG{background:var(--neonG)} .dD{background:var(--neonD)}
+  .dFire{background:var(--fire)} .dSnow{background:var(--snow)} .dIce{background:var(--ice)} .dLucky{background:var(--lucky)} .dRB{background:conic-gradient(var(--rainbow1),var(--rainbow2),var(--rainbow3),var(--rainbow4),var(--rainbow5),var(--rainbow6))}
+  .dGlitch{background:var(--glitch)} .dTimeLeap{background:var(--timeleap)} .dCatNight{background:var(--catnight)} .dSupernova{background:var(--supernova)} .dUltimate{background:var(--ultimate)} .dBlackHole{background:radial-gradient(circle,#000 35%,var(--blackhole) 100%)}
+  .dStone{background:var(--stone)} .dBreak{background:var(--brk)} .dCrystal{background:var(--crystal)} .dObsidian{background:radial-gradient(circle,#000 30%,var(--obsidian) 100%)}
+  .dZombie{background:radial-gradient(circle,#0a2a05 20%,var(--zombie) 100%)} .dBerserk{background:radial-gradient(circle,#3a0000 20%,var(--berserk) 100%)}
+  .dOverlord{background:radial-gradient(circle,var(--overlord2) 25%,var(--overlord1) 100%);box-shadow:0 0 8px rgba(128,0,0,.9)}
+  .dProTyper{background:conic-gradient(var(--rainbow1),var(--rainbow2),var(--rainbow3),var(--rainbow4),var(--rainbow5),var(--rainbow6));animation:spinFx 2s linear infinite}
+  @keyframes protyperFlow{0%{background-position:0% 50%}100%{background-position:400% 50%}}
+  #dex{margin-top:10px;display:grid;grid-template-columns:1fr;gap:8px}
+  .dexItem{
+    display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:10px;padding:8px;border-radius:10px;background:rgba(6,12,18,.9);
+    border:1px solid rgba(255,255,255,.08)
+  }
+  .dexMain{display:flex;align-items:center;gap:8px}
+  .dexName{font-weight:900}
+  .dexStat{font-size:12px;color:#9cc7ff}
+  .locked{color:#5c7da8}
+  .unlocked{filter:drop-shadow(0 0 10px rgba(0,255,255,.35))}
+  .eqBtn{
+    background:linear-gradient(180deg,#00ffb7,#10e7ff);color:#001f1a;border:none;border-radius:10px;padding:6px 8px;cursor:pointer;font-weight:900;
+    box-shadow:0 10px 18px rgba(0,255,191,.22), inset 0 -2px 0 rgba(0,0,0,.25);
+  }
+  .unBtn{
+    background:linear-gradient(180deg,#ff9aa7,#ff6e9f);color:#2a000a;border:none;border-radius:10px;padding:6px 8px;cursor:pointer;font-weight:900;
+    box-shadow:0 10px 18px rgba(255,110,159,.22), inset 0 -2px 0 rgba(0,0,0,.25);
+  }
+
+  /* Craft panel */
+  #craftPanel{margin-top:14px;border-top:1px solid rgba(0,255,255,.18);padding-top:10px}
+  .craftItem{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;margin:8px 0;border-radius:12px;
+    background:rgba(6,12,18,.9);border:1px solid rgba(169,108,255,.28)
+  }
+  .craftInfo{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .craftName{font-weight:900;font-size:13px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .craftBonus{font-size:10px;color:#ffd166;border:1px solid rgba(255,209,102,.4);border-radius:999px;padding:1px 6px}
+  .craftReq{font-size:11px;color:#9fd9ff}
+  .craftHave{font-size:11px;color:#7fd7a8}
+  .craftHave.short{color:#ff8080}
+  .craftBtn{
+    background:linear-gradient(180deg,#c98cff,#7a3dff);color:#0a0016;border:none;border-radius:10px;padding:8px 10px;cursor:pointer;font-weight:900;
+    white-space:nowrap;box-shadow:0 10px 18px rgba(169,108,255,.3), inset 0 -2px 0 rgba(0,0,0,.25)
+  }
+  .craftBtn:disabled{opacity:.55;cursor:default;filter:grayscale(.3)}
+  .craftBtn.gamble{background:linear-gradient(180deg,#ffd166,#ff8a00);color:#231000}
+  .craftBtn.evo{background:linear-gradient(180deg,#a800ff,#33005c);color:#f2e6ff}
+  .craftShake{animation:craftShake .3s ease}
+  @keyframes craftShake{0%{transform:translateX(0)}25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-4px)}100%{transform:translateX(0)}}
+  .craftFlash{animation:craftFlashKf .5s ease}
+  @keyframes craftFlashKf{0%{filter:brightness(1)}50%{filter:brightness(1.8)}100%{filter:brightness(1)}}
+
+  /* BLACK HOLE craft evolution overlay */
+  .boCraftText{
+    position:fixed;left:50%;top:45%;transform:translate(-50%,-50%);font-size:56px;font-weight:1000;letter-spacing:.08em;
+    color:#e6ccff;text-shadow:0 0 30px rgba(168,0,255,.95), 0 0 70px rgba(120,0,220,.7);opacity:0;
+    animation:evilIn 1.1s ease forwards .15s;pointer-events:none;z-index:9600
+  }
+
+  /* Play area (center) */
+  #play{
+    position:relative;min-height:760px;border-radius:18px;overflow:hidden;padding:16px;background:#000;
+    border:1px solid rgba(0,255,255,.25);
+    box-shadow:0 0 40px rgba(0,255,255,.12), inset 0 0 60px rgba(255,0,255,.08);
+    filter:none;
+  }
+  /* Always-on outer wave border that changes with equipped aura */
+  #borderWave{
+    position:absolute;inset:-2px;border-radius:18px;pointer-events:none;mix-blend-mode:screen;opacity:.6;
+    background:conic-gradient(from 0deg, rgba(0,255,200,.35), rgba(0,180,255,.35), rgba(0,255,154,.35), rgba(0,255,200,.35));
+    animation:borderWave 6s linear infinite
+  }
+  @keyframes borderWave{
+    0%{filter:hue-rotate(0deg) brightness(1)}
+    50%{filter:hue-rotate(60deg) brightness(1.2)}
+    100%{filter:hue-rotate(120deg) brightness(1)}
+  }
+
+  .ring{
+    position:absolute;inset:-2px;border-radius:18px;pointer-events:none;border:2px solid transparent;
+    background:conic-gradient(from 0deg, rgba(0,255,255,.35), rgba(255,77,255,.35), rgba(0,255,154,.35), rgba(0,255,255,.35)) border-box;
+    -webkit-mask:linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0) border-box;
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    animation:ringSpin 14s linear infinite
+  }
+  .ring.fast{animation-duration:4s;filter:brightness(1.4)}
+  @keyframes ringSpin{to{transform:rotate(360deg)}}
+  #equipFx{
+    position:absolute;inset:0;pointer-events:none;opacity:.32;mix-blend-mode:screen
+  }
+  #lastDrop{
+    position:absolute;left:50%;top:24px;transform:translateX(-50%);font-size:26px;font-weight:1000;letter-spacing:.08em;
+    color:#bfffd8;text-shadow:0 0 24px rgba(0,255,200,.6), 0 0 50px rgba(0,255,170,.4)
+  }
+  #center{
+    position:absolute;top:38%;left:50%;transform:translate(-50%,-24%);width:min(1020px,96%);text-align:center;will-change:transform
+  }
+  .shaking{animation:shakeScreen .28s ease}
+  .shakeXL{animation:shakeXL .9s cubic-bezier(.36,.07,.19,.97)}
+  @keyframes shakeScreen{
+    0%{transform:translate(-50%,-24%)}
+    20%{transform:translate(calc(-50% - 6px), calc(-24% + 2px))}
+    40%{transform:translate(calc(-50% + 6px), calc(-24% - 2px))}
+    60%{transform:translate(calc(-50% - 4px), calc(-24% + 2px))}
+    80%{transform:translate(calc(-50% + 4px), calc(-24% - 2px))}
+    100%{transform:translate(-50%,-24%)}
+  }
+  @keyframes shakeXL{
+    0%{transform:translate(-50%,-24%)}
+    10%{transform:translate(calc(-50% - 26px), calc(-24% + 14px))}
+    20%{transform:translate(calc(-50% + 20px), calc(-24% - 18px))}
+    30%{transform:translate(calc(-50% - 16px), calc(-24% + 12px))}
+    40%{transform:translate(calc(-50% + 18px), calc(-24% - 12px))}
+    100%{transform:translate(-50%,-24%)}
+  }
+  .typeBoxWrap{position:absolute;top:105px;left:50%;transform:translateX(-50%);width:min(860px,96%);max-width:860px;margin:0;z-index:50}
+  .typedInput{
+    width:100%;box-sizing:border-box;font-family:inherit;font-size:38px;font-weight:900;text-align:center;
+    letter-spacing:.1em;padding:18px 20px;border-radius:16px;color:#c8fff0;background:rgba(0,0,0,.78);
+    border:2px solid rgba(0,255,255,.45);outline:none;caret-color:#10e7ff;
+    box-shadow:inset 0 0 26px rgba(0,255,255,.16), 0 0 32px rgba(0,255,255,.22)
+  }
+  .typedInput::placeholder{color:#3f6f86;font-weight:700;letter-spacing:.03em}
+  #jp{font-size:22px;color:#8ad7ff;text-shadow:0 0 10px rgba(16,231,255,.4);margin:18px 0 6px}
+  #roma{
+    font-size:44px;line-height:1.6;letter-spacing:.6px;padding:18px;border-radius:14px;margin:0 auto 10px;background:rgba(0,0,0,.7);
+    border:1px solid rgba(0,255,255,.22);box-shadow:inset 0 0 20px rgba(0,255,255,.12), 0 0 28px rgba(255,77,255,.12)
+  }
+  .done{color:var(--neonC);text-shadow:0 0 16px rgba(0,255,154,.75)}
+  .curr{position:relative;color:#fff}
+  .curr::after{content:"";position:absolute;left:-1px;bottom:-10px;height:4px;width:20px;border-radius:3px;background:linear-gradient(90deg,#00ffa6,#10e7ff);animation:blink 1s infinite}
+  @keyframes blink{0%,60%{opacity:1}61%,100%{opacity:0}}
+  .pop{animation:pop .18s ease both}
+  @keyframes pop{0%{transform:scale(1)}60%{transform:scale(.86)}100%{transform:scale(1)}}
+  .bars{display:flex;gap:12px;justify-content:center;margin:14px 0;flex-wrap:wrap}
+  .meter{width:31%;min-width:220px;background:rgba(0,0,0,.55);border:1px solid rgba(0,255,255,.18);border-radius:10px;padding:8px}
+  .meter .t{font-size:12px;color:#77a9ff;margin-bottom:6px;display:flex;justify-content:space-between}
+  .bar{height:12px;border-radius:8px;overflow:hidden;background:rgba(10,28,45,.7);box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)}
+  .bar>span{display:block;height:100%;width:0;background:linear-gradient(90deg,#00ffa6,#10e7ff);box-shadow:0 0 14px rgba(0,255,230,.55)}
+  #hint{color:#79a6ff;font-size:12px;margin-top:6px}
+  #mist{height:18px;color:#ff6e9f;margin-top:4px}
+
+  /* Shop (right) */
+  #shop{
+    border-radius:18px;border:1px solid rgba(255,0,255,.28);padding:14px;min-height:720px;background:rgba(0,0,0,.7);
+    box-shadow:0 0 28px rgba(255,0,255,.12), inset 0 0 34px rgba(0,255,255,.08)
+  }
+  #shop h3{margin:0 0 8px}
+  .upg{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;margin:10px 0;border-radius:12px;background:rgba(6,12,18,.88);border:1px solid rgba(0,255,170,.24)}
+  .upg .info{display:flex;flex-direction:column}
+  .upg .t{font-weight:900}
+  .upg .d{font-size:12px;color:#87b6ff}
+  .tag{font-size:11px;color:#9ce9ff;border:1px solid #225f70;border-radius:999px;padding:2px 8px;margin-left:6px}
+  .uBtn{
+    background:linear-gradient(180deg,#00ffb7,#10e7ff);color:#001f1a;border:none;border-radius:10px;padding:8px 10px;cursor:pointer;font-weight:900;
+    box-shadow:0 14px 24px rgba(0,255,191,.28), inset 0 -2px 0 rgba(0,0,0,.25);transform:translateY(0);transition:transform .08s ease, filter .2s ease
+  }
+  .uBtn:hover{filter:brightness(1.1)}
+  .uBtn:active{transform:translateY(2px)}
+  #droneStatus{font-size:12px;color:#9feeff;border:1px solid rgba(0,255,255,.3);padding:6px 8px;border-radius:10px;background:rgba(0,0,0,.6);margin-top:8px}
+
+  /* Missions + Achievements (rendered as modals; see modal system below) */
+  #missions{
+    width:100%;box-sizing:border-box;
+    background:rgba(2,10,16,.88);border:1px solid rgba(0,255,255,.28);border-radius:14px;padding:12px;
+    box-shadow:0 0 24px rgba(0,255,255,.18), inset 0 0 24px rgba(0,255,170,.08);backdrop-filter:blur(2px)
+  }
+  #achievements{
+    width:100%;box-sizing:border-box;max-height:340px;overflow-y:auto;
+    background:rgba(2,10,16,.88);border:1px solid rgba(255,214,66,.32);border-radius:14px;padding:12px;
+    box-shadow:0 0 24px rgba(255,214,66,.16), inset 0 0 24px rgba(255,159,66,.08);backdrop-filter:blur(2px)
+  }
+  #achievements h4{margin:2px 0 8px;font-size:16px;color:#ffe29a;letter-spacing:.08em}
+  .achRow{
+    display:flex;align-items:center;gap:10px;padding:8px;margin:6px 0;border-radius:10px;
+    background:rgba(8,10,4,.6);border:1px solid rgba(255,255,255,.08);transition:box-shadow .3s ease, border-color .3s ease
+  }
+  .achIcon{font-size:20px;width:26px;text-align:center;flex-shrink:0}
+  .achBody{display:flex;flex-direction:column;min-width:0}
+  .achName{font-weight:900;font-size:13px}
+  .achDesc{font-size:11px;color:#8fa3c2}
+  .achLocked{opacity:.45;filter:grayscale(.6)}
+  .achUnlocked{
+    border-color:rgba(255,214,66,.65);
+    box-shadow:0 0 16px rgba(255,214,66,.45), inset 0 0 12px rgba(255,214,66,.15);
+    animation:achNeon 2.4s ease-in-out infinite
+  }
+  .achUnlocked .achName{color:#ffd642;text-shadow:0 0 10px rgba(255,214,66,.8)}
+  @keyframes achNeon{
+    0%,100%{box-shadow:0 0 12px rgba(255,214,66,.35), inset 0 0 10px rgba(255,214,66,.12)}
+    50%{box-shadow:0 0 22px rgba(255,214,66,.65), inset 0 0 16px rgba(255,214,66,.25)}
+  }
+  .achToast{
+    position:fixed;top:18px;right:18px;z-index:9500;min-width:260px;max-width:340px;
+    background:linear-gradient(180deg, rgba(20,14,0,.95), rgba(10,6,0,.95));
+    border:1px solid rgba(255,214,66,.7);border-radius:14px;padding:12px 14px;
+    box-shadow:0 0 30px rgba(255,214,66,.5), inset 0 0 20px rgba(255,159,66,.15);
+    animation:achToastIn .4s ease-out forwards, achToastOut .5s ease-in forwards 3.2s
+  }
+  .achToast .tTitle{font-size:11px;color:#ffcf6b;letter-spacing:.1em;margin-bottom:4px}
+  .achToast .tName{font-size:18px;font-weight:1000;color:#fff;text-shadow:0 0 14px rgba(255,214,66,.9)}
+  @keyframes achToastIn{0%{transform:translateX(120%);opacity:0}100%{transform:translateX(0);opacity:1}}
+  @keyframes achToastOut{0%{transform:translateX(0);opacity:1}100%{transform:translateX(120%);opacity:0}}
+  #missions h4{margin:2px 0 6px;font-size:16px;color:#9ad6ff;letter-spacing:.08em}
+  .msDesc{font-weight:900;margin-bottom:6px}
+  .msRow{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#8fb8ff;margin:4px 0}
+  .msBar{height:12px;border-radius:8px;overflow:hidden;background:rgba(8,24,40,.8);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);margin-bottom:6px}
+  .msBar>span{display:block;height:100%;width:0;background:linear-gradient(90deg,#00ffa6,#10e7ff);box-shadow:0 0 12px rgba(0,255,220,.6)}
+  .msReward{color:#ffd166;font-weight:900}
+  .msCleared{color:#00ffb7;font-weight:900}
+  .msFlash{animation:msflash .5s ease}
+  @keyframes msflash{
+    0%{filter:brightness(1)}
+    50%{filter:brightness(1.6)}
+    100%{filter:brightness(1)}
+  }
+
+  /* Coins and trails */
+  .coin{
+    position:fixed;pointer-events:none;font-weight:900;color:var(--gold);
+    text-shadow:0 4px 0 rgba(0,0,0,.35), 0 0 12px rgba(255,209,102,.9), 0 0 6px rgba(255,255,255,.2);
+    transform:translateZ(0) rotateZ(0deg);
+    will-change:transform,opacity,left,top
+  }
+  .trail{
+    position:fixed;pointer-events:none;font-weight:900;opacity:.95;color:#fff;
+    text-shadow:0 0 16px rgba(255,77,255,.8), 0 0 8px rgba(0,255,170,.7);
+    transform:translate(-50%,-50%) scale(1);animation:trail .6s ease-out forwards
+  }
+  @keyframes trail{
+    0%{opacity:1;filter:blur(0);transform:translate(-50%,-50%) scale(1)}
+    80%{opacity:.6;filter:blur(2px)}
+    100%{opacity:0;filter:blur(4px);transform:translate(-50%,-50%) scale(1.25)}
+  }
+
+  /* Flashes and overlays */
+  #flash{position:fixed;inset:0;background:transparent;opacity:0;pointer-events:none}
+  #flash.bang{animation:flash .35s ease-out}
+  @keyframes flash{
+    0%{background:radial-gradient(600px 240px at 50% 50%, rgba(255,255,255,.95), transparent);opacity:1}
+    100%{background:transparent;opacity:0}
+  }
+  #strobe{position:fixed;inset:0;background:transparent;opacity:0;pointer-events:none}
+  #strobe.flash{animation:strobe .18s steps(2,end) 16}
+  @keyframes strobe{
+    0%{background:rgba(255,255,255,.0);opacity:.0}
+    50%{background:radial-gradient(800px 320px at 50% 50%, rgba(255,255,255,1), transparent);opacity:1}
+    100%{background:rgba(255,255,255,.0);opacity:.0}
+  }
+  #missFlash{position:fixed;inset:0;background:rgba(255,30,30,1);opacity:0;pointer-events:none}
+  #missFlash.hit{animation:missBlink .08s linear}
+  @keyframes missBlink{0%{opacity:1}100%{opacity:0}}
+
+  /* RNG Overlays (shared) */
+  .sweepGreen{
+    position:fixed;inset:0;pointer-events:none;
+    background:conic-gradient(from -90deg at 50% 50%, rgba(0,255,166,0), rgba(0,255,166,.8), rgba(0,255,166,0));
+    animation:sweep 0.45s ease-out forwards
+  }
+  @keyframes sweep{
+    0%{transform:rotate(-60deg);opacity:1;filter:blur(6px)}
+    100%{transform:rotate(120deg);opacity:0;filter:blur(16px)}
+  }
+  .ringBurst{
+    position:fixed;left:50%;top:50%;width:70vmin;height:70vmin;transform:translate(-50%,-50%) scale(0.2);
+    border-radius:50%;border:5px solid rgba(16,231,255,.95);box-shadow:0 0 55px rgba(16,231,255,.9), inset 0 0 38px rgba(0,255,255,.6);
+    animation:ringExpand .65s ease-out forwards
+  }
+  @keyframes ringExpand{
+    0%{transform:translate(-50%,-50%) scale(0.2);opacity:1;filter:blur(2px)}
+    70%{opacity:1}
+    100%{transform:translate(-50%,-50%) scale(1.7);opacity:0;filter:blur(8px)}
+  }
+  .epicWrap{position:fixed;inset:0;pointer-events:none}
+  .bolt{
+    position:absolute;width:5px;height:0;background:linear-gradient(180deg,#d4b3ff,#8a5cff,#4b1fff);
+    box-shadow:0 0 18px rgba(178,132,255,.9);transform-origin:top left;animation:bolt .35s ease-out forwards
+  }
+  @keyframes bolt{
+    0%{height:0;opacity:1;filter:brightness(1)}
+    80%{height:70vh;opacity:1;filter:brightness(1.4)}
+    100%{height:70vh;opacity:0;filter:brightness(0.9)}
+  }
+  .purpleFlash{position:fixed;inset:0;background:rgba(138,43,226,.0);pointer-events:none;animation:purple 0.45s ease-out}
+  @keyframes purple{0%{background:rgba(138,43,226,.65)}100%{background:rgba(138,43,226,0)}}
+  .legendaryBlack{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;animation:lgBlack .4s ease forwards}
+  @keyframes lgBlack{0%{opacity:0}100%{opacity:1}}
+
+  /* ===== 1/5000+ Ultra Rare Confirmation Cut-in (forced 100%) ===== */
+  #cutin-overlay{
+    position:fixed;inset:0;z-index:20000;display:none;align-items:center;justify-content:center;
+    background:rgba(0,0,0,.86);pointer-events:none;overflow:hidden;perspective:1200px
+  }
+  #cutin-overlay.show{display:flex}
+  #cutin-overlay.strobing{animation:ultraStrobe .085s steps(2,end) infinite}
+  @keyframes ultraStrobe{
+    0%{background:rgba(255,255,255,.96)}
+    50%{background:rgba(255,0,0,.85)}
+    100%{background:rgba(0,0,0,.9)}
+  }
+  #cutinText{
+    font-size:min(15vw,150px);font-weight:1000;letter-spacing:.06em;text-align:center;white-space:nowrap;
+    transform-style:preserve-3d;text-shadow:0 0 26px currentColor,0 0 60px currentColor,0 0 130px currentColor;
+    opacity:0
+  }
+  #cutinText.spin3d{animation:ultraCutinPop 2.1s cubic-bezier(.18,.85,.2,1) forwards}
+  @keyframes ultraCutinPop{
+    0%{transform:translateZ(0) rotateY(0deg) rotateX(0deg) scale(.15);opacity:0}
+    18%{transform:translateZ(80px) rotateY(540deg) rotateX(180deg) scale(1.35);opacity:1}
+    32%{transform:translateZ(0) rotateY(900deg) rotateX(360deg) scale(.92);opacity:1}
+    46%{transform:translateZ(20px) rotateY(1080deg) rotateX(400deg) scale(1.08);opacity:1}
+    62%{transform:translateZ(0) rotateY(1260deg) rotateX(360deg) scale(1);opacity:1}
+    85%{transform:translateZ(0) rotateY(1440deg) rotateX(360deg) scale(1);opacity:1}
+    100%{transform:translateZ(0) rotateY(1440deg) rotateX(360deg) scale(1.2);opacity:0}
+  }
+  #cutinSub{
+    position:absolute;top:calc(50% + 90px);left:50%;transform:translateX(-50%);font-size:20px;font-weight:900;
+    letter-spacing:.3em;color:#fff;text-shadow:0 0 16px rgba(255,255,255,.9);opacity:0
+  }
+  #cutinSub.spin3d{animation:cutinSubIn 2.1s ease forwards}
+  @keyframes cutinSubIn{
+    0%,20%{opacity:0}
+    30%{opacity:1}
+    88%{opacity:1}
+    100%{opacity:0}
+  }
+  .megaQuake{animation:megaQuake .05s linear infinite}
+  @keyframes megaQuake{
+    0%{transform:translate(0,0)} 20%{transform:translate(-14px,10px)} 40%{transform:translate(12px,-11px)}
+    60%{transform:translate(-10px,13px)} 80%{transform:translate(13px,-9px)} 100%{transform:translate(0,0)}
+  }
+
+  /* GOD rays + beams */
+  .raysWrap{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+  .ray{
+    position:absolute;left:50%;top:-8vh;width:2px;height:0;background:linear-gradient(180deg,rgba(255,214,66,1),rgba(255,214,66,0));
+    box-shadow:0 0 18px rgba(255,214,66,.9);transform-origin:top left;opacity:.95;animation:rayGrow .9s ease-out forwards
+  }
+  @keyframes rayGrow{
+    0%{height:0;opacity:0.9}
+    80%{height:68vh;opacity:0.95}
+    100%{height:68vh;opacity:0}
+  }
+  .goldBeam{
+    position:fixed;bottom:-20vh;left:50%;width:20px;height:0;transform:translateX(-50%);background:linear-gradient(180deg,rgba(255,214,66,1),rgba(255,214,66,.6),rgba(255,214,66,0));
+    box-shadow:0 0 50px rgba(255,214,66,.9), 0 0 120px rgba(255,214,66,.7);filter:blur(0.4px);
+    animation:beamUp 1s ease-out forwards
+  }
+  @keyframes beamUp{
+    0%{height:0;opacity:.9}
+    100%{height:120vh;opacity:0}
+  }
+
+  /* DARKNESS veil + smoke + suck */
+  .darkVeil{position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;animation:veilIn .25s ease forwards}
+  @keyframes veilIn{to{opacity:1}}
+  .smoke{
+    position:fixed;inset:-20%;background:radial-gradient(circle at 20% 30%, rgba(0,0,0,.0) 0%, rgba(0,0,0,.8) 50%, rgba(0,0,0,1) 70%) ,
+                       radial-gradient(circle at 70% 40%, rgba(0,0,0,.0) 0%, rgba(0,0,0,.85) 50%, rgba(0,0,0,1) 70%),
+                       radial-gradient(circle at 40% 80%, rgba(0,0,0,.0) 0%, rgba(0,0,0,.9) 50%, rgba(0,0,0,1) 70%);
+    filter:blur(10px) brightness(.9);
+    animation:smokeDrift 4s linear infinite alternate;
+    opacity:.95;pointer-events:none
+  }
+  @keyframes smokeDrift{
+    0%{transform:translate(0,0) scale(1)}
+    100%{transform:translate(-4%,3%) scale(1.05)}
+  }
+  .evilText{
+    position:fixed;left:50%;top:45%;transform:translate(-50%,-50%);font-size:88px;font-weight:1000;letter-spacing:.06em;color:#b366ff;
+    text-shadow:0 0 30px rgba(179,102,255,.9), 0 0 70px rgba(160,80,255,.7);opacity:0;animation:evilIn 1.2s ease forwards .2s
+  }
+  @keyframes evilIn{
+    0%{opacity:0;transform:translate(-50%,-60%) scale(.8)}
+    100%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  }
+  .sucked{
+    animation:suck 1.2s cubic-bezier(.22,.66,.12,1) forwards
+  }
+  @keyframes suck{
+    0%{filter:none;transform:translateY(0) scale(1)}
+    50%{filter:blur(2px) brightness(.8);transform:translateY(-10px) scale(.95)}
+    100%{filter:blur(6px) brightness(.6);transform:translateY(-30px) scale(.8)}
+  }
+
+  /* ELEMENT mega strobe + afterimages */
+  #megaStrobe{position:fixed;inset:0;pointer-events:none;opacity:0}
+  #megaStrobe.active{animation:rainbow 1.2s steps(6,end) 6}
+  @keyframes rainbow{
+    0%{background:rgba(255,0,0,.95);opacity:1}
+    16%{background:rgba(0,0,255,.95);opacity:1}
+    33%{background:rgba(0,255,0,.95);opacity:1}
+    50%{background:rgba(255,255,0,.95);opacity:1}
+    66%{background:rgba(0,255,255,.95);opacity:1}
+    83%{background:rgba(255,0,255,.95);opacity:1}
+    100%{background:rgba(255,255,255,.95);opacity:0}
+  }
+  .afterImg{
+    position:absolute;left:0;top:0;pointer-events:none;opacity:.9;color:#fff;filter:blur(1px);
+    text-shadow:0 0 12px rgba(255,255,255,.8);
+    animation:ghost 0.5s ease-out forwards
+  }
+  @keyframes ghost{
+    0%{transform:translate(0,0) scale(1);opacity:.9}
+    100%{transform:translate(20px,-30px) scale(1.2);opacity:0}
+  }
+
+  /* Extra FX: ICE spikes and Lucky symbols */
+  .iceSpike{
+    position:fixed;background:linear-gradient(180deg,rgba(143,227,255,1),rgba(143,227,255,0));
+    width:6px;height:0;filter:drop-shadow(0 0 10px rgba(143,227,255,.9));
+    transform-origin:bottom center;opacity:.95;pointer-events:none;z-index:8;animation:iceGrow .5s ease-out forwards
+  }
+  @keyframes iceGrow{
+    0%{height:0;opacity:.7}
+    100%{height:30vh;opacity:0}
+  }
+  .luckySym{
+    position:fixed;pointer-events:none;font-weight:1000;color:#ffd700;font-size:22px;
+    text-shadow:0 0 10px rgba(255,215,0,.9), 0 0 30px rgba(255,215,0,.6);
+    transform:translate(-50%,-50%) scale(1);
+    animation:luckyFly .9s ease-out forwards
+  }
+  @keyframes luckyFly{
+    0%{opacity:1;transform:translate(-50%,-50%) scale(0.9)}
+    100%{opacity:0;transform:translate(-50%,-180%) rotate(20deg) scale(1.4)}
+  }
+
+  /* Rainbow Unlock cut-in */
+  .rbUnlocked{
+    position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:18
+  }
+  .rbTxt{
+    font-size:72px;font-weight:1000;letter-spacing:.06em;text-align:center;line-height:1.2;
+    background:linear-gradient(90deg,var(--rainbow1),var(--rainbow2),var(--rainbow3),var(--rainbow4),var(--rainbow5),var(--rainbow6));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 0 24px rgba(255,255,255,.85);
+    animation:rbIn .9s cubic-bezier(.2,.9,.2,1) forwards
+  }
+  @keyframes rbIn{
+    0%{transform:scale(.4) rotate(-8deg);opacity:0}
+    60%{transform:scale(1.15) rotate(3deg);opacity:1}
+    100%{transform:scale(1) rotate(0)}
+  }
+  .rbSpinBorder{
+    position:fixed;inset:-3px;border-radius:18px;pointer-events:none;z-index:17;
+    border:3px solid transparent;
+    background:
+      conic-gradient(from 0deg, var(--rainbow1),var(--rainbow2),var(--rainbow3),var(--rainbow4),var(--rainbow5),var(--rainbow6),var(--rainbow1)) border-box;
+    -webkit-mask:linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0) border-box;
+    -webkit-mask-composite:xor; mask-composite:exclude;
+    animation:rbSpin 1.2s linear infinite
+  }
+  @keyframes rbSpin{to{transform:rotate(360deg)}}
+
+  /* Canvas layers */
+  canvas#fx{position:fixed;inset:0;pointer-events:none;filter:blur(.2px);will-change:contents}
+  canvas#fxTop{position:fixed;inset:0;pointer-events:none;will-change:contents}
+
+  /* Simple texts */
+  .commonText{
+    position:fixed;left:50%;top:18%;transform:translate(-50%,-50%);font-size:22px;font-weight:900;color:#00ffa6;opacity:0;animation:cmTxt .6s ease-out forwards
+  }
+  .uncommonText{
+    position:fixed;left:50%;top:18%;transform:translate(-50%,-50%);font-size:22px;font-weight:900;color:#6cf9ff;opacity:0;animation:cmTxt .6s ease-out forwards
+  }
+  @keyframes cmTxt{0%{opacity:0;transform:translate(-50%,-50%) scale(.85)}40%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.1)}}
+
+  /* Equip ambient FX classes on #equipFx */
+  .fx-common{background:radial-gradient(60vmax 30vmax at 50% 10%, rgba(0,255,166,.12), transparent)}
+  .fx-uncommon{background:radial-gradient(60vmax 30vmax at 50% 10%, rgba(108,249,255,.14), transparent)}
+  .fx-rare{background:radial-gradient(60vmax 30vmax at 50% 10%, rgba(58,160,255,.18), transparent)}
+  .fx-epic{background:radial-gradient(60vmax 30vmax at 50% 10%, rgba(169,108,255,.20), transparent)}
+  .fx-legendary{background:radial-gradient(60vmax 30vmax at 50% 10%, rgba(255,159,66,.22), transparent)}
+  .fx-mythical{background:radial-gradient(60vmax 30vmax at 50% 10%, rgba(255,90,200,.22), transparent)}
+  .fx-celestial{background:radial-gradient(60vmax 30vmax at 50% 10%, rgba(234,246,255,.24), transparent)}
+  .fx-god{background:radial-gradient(60vmax 30vmax at 50% 10%, rgba(255,214,66,.28), transparent)}
+  .fx-darkness{background:radial-gradient(60vmax 30vmax at 50% 10%, rgba(64,0,128,.28), transparent)}
+  .fx-element{background:conic-gradient(from 0deg at 50% 10%, rgba(255,0,0,.14), rgba(0,255,0,.14), rgba(0,0,255,.14), rgba(255,255,0,.14), rgba(255,0,255,.14), rgba(0,255,255,.14), rgba(255,0,0,.14)); animation:spinFx 10s linear infinite}
+  .fx-fire{background:radial-gradient(70vmax 40vmax at 50% 15%, rgba(255,61,61,.25), transparent)}
+  .fx-snow{background:radial-gradient(70vmax 40vmax at 50% 15%, rgba(234,246,255,.25), transparent)}
+  .fx-ice{background:radial-gradient(70vmax 40vmax at 50% 15%, rgba(143,227,255,.25), transparent)}
+  .fx-lucky{background:radial-gradient(70vmax 40vmax at 50% 15%, rgba(255,215,0,.25), transparent)}
+  .fx-rainbow{background:conic-gradient(from 0deg, var(--rainbow1),var(--rainbow2),var(--rainbow3),var(--rainbow4),var(--rainbow5),var(--rainbow6)); animation:spinFx 6s linear infinite; opacity:.38}
+  .fx-glitch{background:radial-gradient(70vmax 40vmax at 50% 15%, rgba(255,0,85,.28), transparent); animation:glitchFlicker .25s steps(2,end) infinite}
+  .fx-timeleap{background:radial-gradient(70vmax 40vmax at 50% 15%, rgba(0,255,170,.25), transparent)}
+  .fx-catnight{background:radial-gradient(70vmax 40vmax at 50% 15%, rgba(255,170,0,.25), transparent)}
+  .fx-supernova{background:conic-gradient(from 0deg at 50% 15%, rgba(255,170,238,.22), rgba(168,0,255,.18), rgba(255,170,238,.22)); animation:spinFx 8s linear infinite}
+  .fx-ultimate{background:radial-gradient(70vmax 40vmax at 50% 15%, rgba(255,0,0,.35), transparent); animation:glitchFlicker .18s steps(2,end) infinite}
+  .fx-blackhole{background:radial-gradient(50vmax 50vmax at 50% 50%, rgba(0,0,0,.9), rgba(168,0,255,.35) 70%, transparent)}
+  .weaponButtons{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.weaponButtons .craftBtn{flex:1;min-width:78px;font-size:11px}.weaponSlotBox{border-color:rgba(255,255,255,.2)!important}
+  .fx-stone{background:radial-gradient(70vmax 40vmax at 50% 15%, rgba(156,156,156,.22), transparent)}
+  .fx-dirt{background:radial-gradient(70vmax 40vmax at 50% 15%, rgba(101,67,33,.30), transparent)}
+  .fx-water{background:radial-gradient(70vmax 40vmax at 50% 15%, rgba(0,191,255,.30), transparent);animation:spinFx 5s linear infinite}
+  .fx-lightning{background:radial-gradient(70vmax 50vmax at 50% 20%, rgba(255,255,0,.42), transparent);animation:glitchFlicker .08s steps(2,end) infinite}
+  .fx-compressed-dirt{background:radial-gradient(70vmax 45vmax at 50% 20%, rgba(139,111,71,.38), transparent);animation:glitchFlicker .25s steps(2,end) infinite}
+  .fx-grass{background:radial-gradient(70vmax 40vmax at 50% 15%, rgba(0,255,0,.30), transparent);animation:glitchFlicker .25s steps(2,end) infinite}
+  .fx-blood{background:radial-gradient(70vmax 45vmax at 50% 20%, rgba(138,0,0,.42), transparent);animation:glitchFlicker .18s steps(2,end) infinite}
+  .fx-human{background:radial-gradient(60vmax 55vmax at 50% 40%, rgba(255,255,255,.75), transparent);animation:spinFx 1.2s linear infinite}
+  .fx-demonic-lump{background:radial-gradient(60vmax 55vmax at 50% 40%, rgba(106,13,173,.48), rgba(0,0,0,.55) 72%, transparent);animation:spinFx 1.7s linear infinite}
+  .fx-break{background:radial-gradient(70vmax 40vmax at 50% 15%, rgba(201,122,43,.24), transparent)}
+  .fx-crystal{background:radial-gradient(70vmax 40vmax at 50% 15%, rgba(127,223,255,.26), transparent)}
+  .fx-obsidian{background:radial-gradient(60vmax 50vmax at 50% 40%, rgba(123,47,255,.32), rgba(0,0,0,.6) 75%, transparent)}
+  .fx-zombie{background:radial-gradient(70vmax 40vmax at 50% 15%, rgba(57,255,20,.30), transparent); animation:glitchFlicker .5s steps(2,end) infinite}
+  .fx-berserk{background:radial-gradient(70vmax 45vmax at 50% 20%, rgba(255,0,0,.38), transparent); animation:glitchFlicker .12s steps(2,end) infinite}
+  .fx-overlord{background:radial-gradient(65vmax 50vmax at 50% 40%, rgba(128,0,0,.4), rgba(0,0,0,.75) 70%, transparent); animation:glitchFlicker .22s steps(2,end) infinite}
+  .fx-protyper{background:conic-gradient(from 0deg, var(--rainbow1),var(--rainbow2),var(--rainbow3),var(--rainbow4),var(--rainbow5),var(--rainbow6)); animation:spinFx 2s linear infinite; opacity:.5}
+  @keyframes glitchFlicker{0%{opacity:.9;filter:hue-rotate(0deg)}50%{opacity:.5;filter:hue-rotate(30deg)}100%{opacity:.9;filter:hue-rotate(0deg)}}
+  @keyframes glitchShake{
+    0%{transform:translate(0,0)} 10%{transform:translate(-6px,3px)} 20%{transform:translate(5px,-4px)}
+    30%{transform:translate(-4px,4px)} 40%{transform:translate(6px,-2px)} 50%{transform:translate(-5px,2px)}
+    60%{transform:translate(4px,-3px)} 70%{transform:translate(-6px,3px)} 80%{transform:translate(5px,-4px)}
+    90%{transform:translate(-3px,2px)} 100%{transform:translate(0,0)}
+  }
+  .glitchActive{animation:glitchShake .5s steps(2,end) 3}
+  .timeLeapRing{position:fixed;left:50%;top:50%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;border:4px solid #00ffaa;box-shadow:0 0 40px #00ffaa, inset 0 0 20px #00baff;animation:timeLeapExpand 1.6s ease-out forwards;pointer-events:none;z-index:500}
+  @keyframes timeLeapExpand{0%{width:40px;height:40px;margin:-20px 0 0 -20px;opacity:1}100%{width:900px;height:900px;margin:-450px 0 0 -450px;opacity:0}}
+  .blackHoleVoid{position:fixed;inset:0;pointer-events:none;z-index:500;background:radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 0%, rgba(10,0,20,.7) 30%, rgba(168,0,255,.5) 55%, rgba(0,0,0,.95) 100%);opacity:0;animation:blackHolePulse 1.8s ease-in-out forwards}
+  @keyframes blackHolePulse{0%{opacity:0; transform:scale(0.2)}30%{opacity:1; transform:scale(1)}70%{opacity:1; transform:scale(1.15)}100%{opacity:0; transform:scale(1.4)}}
+  .protyperWhiteout{position:fixed;inset:0;background:#fff;z-index:9999;opacity:0;pointer-events:none;animation:protyperFlashSeq 1.4s ease-out forwards}
+  @keyframes protyperFlashSeq{0%{opacity:0}10%{opacity:1}55%{opacity:1}100%{opacity:0}}
+  .protyperTxt{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(0.2) rotateX(30deg);font-size:min(14vw,160px);font-weight:1000;letter-spacing:.05em;z-index:10000;pointer-events:none;text-align:center;
+    background:linear-gradient(90deg,var(--rainbow1),var(--rainbow2),var(--rainbow3),var(--rainbow4),var(--rainbow5),var(--rainbow6),var(--rainbow1));
+    background-size:400% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 0 40px rgba(255,255,255,.4);
+    animation:protyperReveal 2.6s cubic-bezier(.2,1.4,.4,1) forwards, protyperFlow 1.4s linear infinite 1.4s;
+    opacity:0;
+  }
+  @keyframes protyperReveal{
+    0%{opacity:0; transform:translate(-50%,-50%) scale(0.2) rotateX(60deg)}
+    55%{opacity:0}
+    70%{opacity:1; transform:translate(-50%,-50%) scale(1.3) rotateX(0deg)}
+    85%{transform:translate(-50%,-50%) scale(0.95) rotateX(0deg)}
+    100%{opacity:1; transform:translate(-50%,-50%) scale(1) rotateX(0deg)}
+  }
+  @keyframes spinFx{to{transform:rotate(360deg)}}
+
+  /* Responsive */
+  @media (max-width:1360px){
+    main{grid-template-columns:1fr;gap:10px}
+    #auraPanel{order:2}
+    #shop{order:3}
+    #play{order:1;min-height:640px}
+    #lastDrop{top:18px}
+    header{grid-template-columns:1fr 1fr;row-gap:10px}
+    #equipBadge{justify-self:start}
+    #hdrButtons{grid-column:1/-1;justify-content:center}
+  }
+  @media (max-width:600px){
+    .hdrBtn{flex:1 1 auto;text-align:center;font-size:12px;padding:10px 8px}
+    .typedInput{font-size:24px !important;padding:12px 14px !important}
+    #roma{font-size:26px !important}
+  }
+
+/* ===== Device Start Screen ===== */
+#deviceStart{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%,#16244a 0,#070b18 45%,#02040a 100%);color:#fff;font-family:inherit;overflow:hidden}
+#deviceStart.hidden{display:none}
+.dsCard{width:min(760px,calc(100vw - 32px));padding:42px 34px 34px;border:1px solid rgba(255,255,255,.16);border-radius:28px;background:rgba(7,11,24,.88);box-shadow:0 25px 90px rgba(0,0,0,.55),0 0 55px rgba(16,231,255,.10);text-align:center;backdrop-filter:blur(16px)}
+.dsLogo{font-size:clamp(34px,6vw,68px);font-weight:900;letter-spacing:.06em;text-shadow:0 0 22px rgba(16,231,255,.45);margin-bottom:8px}
+.dsSub{opacity:.72;font-size:14px;letter-spacing:.18em;margin-bottom:34px}
+.dsQuestion{font-size:clamp(18px,3vw,28px);font-weight:800;margin-bottom:20px}
+.dsChoices{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.dsChoice{appearance:none;border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:24px 18px;background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.025));color:#fff;cursor:pointer;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease,background .18s ease}
+.dsChoice:hover{transform:translateY(-3px);border-color:rgba(16,231,255,.65);box-shadow:0 10px 35px rgba(16,231,255,.12)}
+.dsIcon{font-size:42px;display:block;margin-bottom:10px}.dsName{font-size:20px;font-weight:900;display:block}.dsHint{font-size:12px;opacity:.6;display:block;margin-top:6px}
+.dsChoice.selected{border-color:#10e7ff;background:linear-gradient(180deg,rgba(16,231,255,.16),rgba(16,231,255,.04));box-shadow:0 0 30px rgba(16,231,255,.16)}
+#dsStart{margin-top:24px;width:100%;border:0;border-radius:16px;padding:17px;font:inherit;font-weight:900;font-size:17px;color:#07101b;background:linear-gradient(90deg,#10e7ff,#00ffa6);cursor:pointer;box-shadow:0 8px 28px rgba(16,231,255,.18);opacity:.42;pointer-events:none;transition:transform .18s,opacity .18s}
+#dsStart.ready{opacity:1;pointer-events:auto}#dsStart.ready:hover{transform:translateY(-2px)}
+@media(max-width:600px){.dsCard{padding:30px 18px 20px;border-radius:22px}.dsChoices{grid-template-columns:1fr;gap:12px}.dsChoice{padding:18px}.dsIcon{font-size:34px}.dsSub{margin-bottom:24px}}
+/* ===== Device-specific layout modes ===== */
+body.device-mobile #wrap{width:100%;max-width:none;padding:8px;box-sizing:border-box}
+body.device-mobile #center{width:100%;margin:0 auto}
+body.device-mobile #shop,body.device-mobile #odds,body.device-mobile #dex,body.device-mobile #missions,body.device-mobile #achievements{width:100%;box-sizing:border-box}
+body.device-mobile .topbar{flex-wrap:wrap;gap:6px}
+body.device-mobile #play{min-height:46vh}
+body.device-mobile button{min-height:44px}
+body.device-mobile .shopGrid{grid-template-columns:1fr 1fr}
+body.device-pc #wrap{max-width:1500px;margin:0 auto}
+body.device-pc #play{min-height:520px}
+body.device-pc #shop,body.device-pc #odds,body.device-pc #dex,body.device-pc #missions,body.device-pc #achievements{box-sizing:border-box}
+@media(max-width:600px){body.device-mobile .shopGrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<!-- Device selection start screen -->
+<div id="deviceStart" aria-modal="true" role="dialog">
+  <div class="dsCard">
+    <div class="dsLogo">RNGタイピング</div>
+    <div class="dsSub">TYPING EXPERIENCE</div>
+    <div class="dsQuestion">プレイする端末を選択してください</div>
+    <div class="dsChoices">
+      <button class="dsChoice" data-device="pc"><span class="dsIcon">🖥️</span><span class="dsName">パソコン</span><span class="dsHint">キーボード操作・ワイド配置</span></button>
+      <button class="dsChoice" data-device="mobile"><span class="dsIcon">📱</span><span class="dsName">スマホ</span><span class="dsHint">タップ入力・縦長配置</span></button>
+    </div>
+    <button id="dsStart">端末を選択してスタート</button>
+  </div>
+</div>
+
+<div id="wrap">
+  <div id="app">
+    <header>
+      <div class="stat"><span class="lbl">資金</span><span class="val" id="money">0</span><small>C</small></div>
+      <div class="stat"><span class="lbl">製品</span><span class="val" id="prod">0</span></div>
+      <div class="stat"><span class="lbl">設備倍率</span><span class="val" id="mult">x1.00</span></div>
+      <div id="equipBadge">装備中 AURA: <span id="equipNowName">NONE</span></div>
+      <div id="hdrButtons">
+        <button type="button" class="hdrBtn craft" id="openCraftBtn">🛠️ クラフト画面を開く</button>
+        <button type="button" class="hdrBtn ach" id="openAchBtn">🏆 実績一覧を開く</button>
+        <button type="button" class="hdrBtn mission" id="openMissionBtn">🎯 ミッション確認</button>
+        <button type="button" class="hdrBtn items" id="openItemsBtn">💼 アイテム</button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Aura Odds / Collection -->
+      <aside id="auraPanel">
+        <h3>オーラ確率（Luck=ブースター×装備）</h3>
+        <div class="odds" id="oddsList"></div>
+        <h3>オーラコレクション（図鑑＆着せ替え）</h3>
+        <div id="dex"></div>
+      </aside>
+
+      <!-- Play -->
+      <section id="play">
+        <div id="borderWave"></div>
+        <div class="ring" id="ring"></div>
+        <div id="equipFx" class="fx-common"></div>
+        <div id="lastDrop">直近ドロップ: <span id="lastDropName">NONE</span></div>
+
+        <div id="center">
+          <div class="typeBoxWrap">
+            <input type="text" id="typedInput" class="typedInput" readonly inputmode="none" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="入力した文字がここに表示されます" />
+          </div>
+          <div id="jp"></div>
+          <div id="roma"></div>
+          <div class="bars">
+            <div class="meter">
+              <div class="t"><span>入力進行</span><span id="progLbl">0%</span></div>
+              <div class="bar"><span id="progBar"></span></div>
+            </div>
+            <div class="meter">
+              <div class="t"><span>直近オーラ倍率</span><span id="rngMultLbl">x1.00</span></div>
+              <div class="bar"><span id="rngBar"></span></div>
+            </div>
+            <div class="meter">
+              <div class="t"><span>コンボ倍率</span><span id="comboLbl">x1.00</span></div>
+              <div class="bar"><span id="comboBar"></span></div>
+            </div>
+          </div>
+          <div id="hint"></div>
+          <div id="mist"></div>
+          <div id="droneStatus">DRONE: Standby</div>
+        </div>
+      </section>
+
+      <!-- Shop -->
+      <aside id="shop">
+        <h3>設備アップグレード</h3>
+        <div class="upg">
+          <div class="info">
+            <span class="t">キーボードの潤滑油 <span class="tag" id="lv1">Lv.0</span></span>
+            <span class="d">1文字あたりの基礎獲得資金を+20%（累積）。</span>
+          </div>
+          <button class="uBtn" id="buy1">購入 100C</button>
+        </div>
+        <div class="upg">
+          <div class="info">
+            <span class="t">超高速マザーボード <span class="tag" id="lv2">Lv.0</span></span>
+            <span class="d">毎秒の自動獲得資金を+2C/s（累積）。</span>
+          </div>
+          <button class="uBtn" id="buy2">購入 150C</button>
+        </div>
+        <div class="upg">
+          <div class="info">
+            <span class="t">RNG増幅ブースター <span class="tag" id="lv3">Lv.0</span></span>
+            <span class="d">Luck倍率上昇（例: x1.25, x1.50…）。装備Luckと掛け算。</span>
+          </div>
+          <button class="uBtn" id="buy3">購入 250C</button>
+        </div>
+        <div class="upg">
+          <div class="info">
+            <span class="t">コンボ倍率スタビライザー <span class="tag" id="lv4">Lv.0</span></span>
+            <span class="d">コンボ1ごとのボーナス+0.4%（累積）。</span>
+          </div>
+          <button class="uBtn" id="buy4">購入 220C</button>
+        </div>
+        <div class="upg">
+          <div class="info">
+            <span class="t">サイバーお供ドローン <span class="tag" id="lv5">Lv.0</span></span>
+            <span class="d">ミス自動防止(時々) + 一定間隔で小額ボーナス資金を搬入。</span>
+          </div>
+          <button class="uBtn" id="buy5">購入 300C</button>
+        </div>
+      </aside>
+    </main>
+  </div>
+</div>
+
+<!-- Modal backdrop shared by craft / achievements / missions -->
+<div id="modalBackdrop"></div>
+<div id="itemsPanel">
+  <button type="button" class="modalCloseBtn" data-close="itemsPanel">✕</button>
+  <h3>💼 所持アイテム</h3>
+  <div id="potionTimer" class="potionTimer" style="display:none"></div>
+  <div class="itemRow"><div><div class="itemName">⚡ 雷のポーション</div><div class="craftReq">使用すると3分間、総Luck x2.0</div></div><div><span class="itemCount" id="lightningPotionCount">x0</span> <button class="itemUseBtn" id="useLightningPotionBtn">使用</button></div></div>
+  <div class="itemRow"><div><div class="itemName">💊 薬（MEDICINE）</div><div class="craftReq">HUMAN錬成用素材</div></div><span class="itemCount" id="medicineCount">x0</span></div>
+</div>
+
+<!-- Craft (装備作成) — opened as a centered modal from the header button -->
+<div id="craftPanel">
+  <button type="button" class="modalCloseBtn" data-close="craftPanel">✕</button>
+  <h3>🔨 装備作成（クラフト）</h3>
+
+  <div class="craftItem">
+    <div class="craftInfo">
+      <div class="craftName">ELEMENT GANTLET <span class="craftBonus">常時 Luck +5%</span></div>
+      <div class="craftReq">必要素材: EPIC ×1, LEGENDARY ×1</div>
+      <div class="craftHave" id="craftHaveGantlet"></div>
+    </div>
+    <button class="craftBtn" id="craftGantletBtn">クラフトする</button>
+  </div>
+
+  <div class="craftItem">
+    <div class="craftInfo">
+      <div class="craftName">FLAME SWORD <span class="craftBonus">常時 Luck +10%</span></div>
+      <div class="craftReq">必要素材: CRYSTAL ×1, FIRE ×1</div>
+      <div class="craftHave" id="craftHaveFlame"></div>
+    </div>
+    <button class="craftBtn" id="craftFlameBtn">クラフトする</button>
+  </div>
+
+  <div class="craftItem">
+    <div class="craftInfo">
+      <div class="craftName">BLIZZARD SWORD <span class="craftBonus">常時 Luck +15%</span></div>
+      <div class="craftReq">必要素材: CRYSTAL ×1, ICE ×1</div>
+      <div class="craftHave" id="craftHaveBlizzard"></div>
+    </div>
+    <button class="craftBtn" id="craftBlizzardBtn">クラフトする</button>
+  </div>
+
+  <div class="craftItem">
+    <div class="craftInfo">
+      <div class="craftName">COMPRESSED DIRT <span class="craftBonus">クラフト限定・装備Luck x6.5</span></div>
+      <div class="craftReq">必要素材: 土（DIRT） ×300　表示確率: 1/70,000</div>
+      <div class="craftHave" id="craftHaveCompressedDirt"></div>
+    </div>
+    <button class="craftBtn evo" id="craftCompressedDirtBtn">圧縮する</button>
+  </div>
+
+  <div class="craftItem">
+    <div class="craftInfo">
+      <div class="craftName">DEMONIC LUMP <span class="craftBonus">究極進化・装備Luck x22.0</span></div>
+      <div class="craftReq">必要素材: 凝縮された土（COMPRESSED DIRT） ×3　表示確率: 1/666,666</div>
+      <div class="craftHave" id="craftHaveDemonicLump"></div>
+    </div>
+    <button class="craftBtn evo" id="craftDemonicLumpBtn">究極進化</button>
+  </div>
+
+  <div class="craftItem"><div class="craftInfo"><div class="craftName">STONE SWORD <span class="craftBonus">Luck x1.25</span></div><div class="craftReq">必要素材: THE SWORD ×1, STONE ×1</div><div class="craftHave" id="craftHaveStoneSword"></div></div><button class="craftBtn" id="craftStoneSwordBtn">クラフトする</button></div>
+  <div class="craftItem"><div class="craftInfo"><div class="craftName">WOOD SWORD <span class="craftBonus">Luck x1.10</span></div><div class="craftReq">必要素材: THE SWORD ×1, WOOD ×1</div><div class="craftHave" id="craftHaveWoodSword"></div></div><button class="craftBtn" id="craftWoodSwordBtn">クラフトする</button></div>
+  <div class="craftItem"><div class="craftInfo"><div class="craftName">DIAMOND SWORD <span class="craftBonus">Luck x1.90</span></div><div class="craftReq">必要素材: THE SWORD ×1, DIAMOND ×1</div><div class="craftHave" id="craftHaveDiamondSword"></div></div><button class="craftBtn" id="craftDiamondSwordBtn">クラフトする</button></div>
+
+  <div class="craftItem weaponSlotBox">
+    <div class="craftInfo">
+      <div class="craftName">⚔ 武器スロット <span class="craftBonus" id="weaponSlotStatus">武器スロット: 空</span></div>
+      <div class="craftReq">剣は1本のみ装備可能。別の剣を選ぶと前の剣は自動解除。</div>
+      <div class="weaponButtons">
+        <button class="craftBtn weaponEquipBtn" data-weapon="flameSword">装備</button>
+        <button class="craftBtn weaponEquipBtn" data-weapon="blizzardSword">装備</button>
+        <button class="craftBtn weaponEquipBtn" data-weapon="stoneSword">装備</button>
+        <button class="craftBtn weaponEquipBtn" data-weapon="woodSword">装備</button>
+        <button class="craftBtn weaponEquipBtn" data-weapon="diamondSword">装備</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="craftItem"><div class="craftInfo"><div class="craftName">⚡ 雷のポーション <span class="craftBonus">消耗品・3分間 Luck x2</span></div><div class="craftReq">必要素材: WATER ×1, LIGHTNING ×1</div><div class="craftHave" id="craftHaveLightningPotion"></div></div><button class="craftBtn evo" id="craftLightningPotionBtn">クラフトする</button></div>
+  <div class="craftItem"><div class="craftInfo"><div class="craftName">💊 薬（MEDICINE） <span class="craftBonus">消耗品・HUMAN錬成素材</span></div><div class="craftReq">必要素材: BLOOD ×1, GRASS ×1</div><div class="craftHave" id="craftHaveMedicine"></div></div><button class="craftBtn" id="craftMedicineBtn">クラフトする</button></div>
+  <div class="craftItem"><div class="craftInfo"><div class="craftName">HUMAN <span class="craftBonus">究極錬成・Luck x50.0</span></div><div class="craftReq">必要素材: 薬（MEDICINE） ×1, ZOMBIE ×1　表示確率: 1/1,234,567</div><div class="craftHave" id="craftHaveHuman"></div></div><button class="craftBtn evo" id="craftHumanBtn">錬成する</button></div>
+
+  <div class="craftItem">
+    <div class="craftInfo">
+      <div class="craftName">BLACK HOLE <span class="craftBonus">暗黒進化・装備Luck x9.0・100%成功</span></div>
+      <div class="craftReq">必要素材: 暗黒（DARKNESS） ×3</div>
+      <div class="craftHave" id="craftHaveBlackHole"></div>
+    </div>
+    <button class="craftBtn evo" id="craftBlackHoleBtn">進化させる</button>
+  </div>
+
+  <div class="craftItem">
+    <div class="craftInfo">
+      <div class="craftName">黒曜石ギャンブル <span class="craftBonus">成功10%・OBSIDIAN Luck x4.0</span></div>
+      <div class="craftReq">必要素材: STONE ×1, BREAK ×1（失敗時: 500C還元）</div>
+      <div class="craftHave" id="craftHaveObsidian"></div>
+    </div>
+    <button class="craftBtn gamble" id="craftObsidianBtn">合成に挑戦</button>
+  </div>
+</div>
+
+<!-- Missions + Achievements — opened as centered modals from the header buttons -->
+<div id="missions">
+  <button type="button" class="modalCloseBtn" data-close="missions">✕</button>
+  <h4>STORY MISSIONS</h4>
+  <div class="msDesc" id="msDesc">ミッション1: 50コンボ達成せよ。</div>
+  <div class="msRow"><span id="msProgText">0 / 50</span><span class="msReward" id="msReward">報酬: 10,000C</span></div>
+  <div class="msBar"><span id="msBar"></span></div>
+  <div class="msRow"><span id="msStatus">進行中...</span><span id="msLevel">1 / 10</span></div>
+</div>
+
+<div id="achievements">
+  <button type="button" class="modalCloseBtn" data-close="achievements">✕</button>
+  <h4>🏆 実績（称号）</h4>
+  <div id="achList"></div>
+</div>
+
+<canvas id="fx"></canvas>
+<canvas id="fxTop"></canvas>
+<div id="flash"></div>
+<div id="strobe"></div>
+<div id="missFlash"></div>
+<div id="megaStrobe"></div>
+<div id="cutin-overlay"><div id="cutinText"></div><div id="cutinSub">ULTRA RARE CONFIRMED</div></div>
+
+<script>
+window.addEventListener('DOMContentLoaded', function(){
+  // ======= Word bank with difficulty (30+ diversified) =======
+  const BANK = [
+    // 日常
+    {d:'easy',   jp:'ねこ',                               ro:'neko'},
+    {d:'easy',   jp:'くるま',                             ro:'kuruma'},
+    {d:'easy',   jp:'でんき',                             ro:'denki'},
+    {d:'easy',   jp:'パン',                               ro:'pan'},
+    {d:'easy',   jp:'ロボット',                           ro:'robotto'},
+    {d:'normal', jp:'朝日がまぶしい',                     ro:'asahi ga mabushii'},
+    {d:'normal', jp:'冷たい風が吹く',                     ro:'tsumetai kaze ga fuku'},
+    {d:'normal', jp:'青い海と白い雲',                     ro:'aoi umi to shiroi kumo'},
+    {d:'hard',   jp:'静かな図書館で集中する',             ro:'shizuka na toshokan de shuuchuu suru'},
+    {d:'hard',   jp:'雨上がりの道がきらめく',             ro:'ame agari no michi ga kirameku'},
+    // サイバー/ネオン
+    {d:'normal', jp:'ネオンライトが夜を照らす',           ro:'neon raito ga yoru o terasu'},
+    {d:'normal', jp:'サイバーパンクの世界へようこそ',     ro:'saibaa panku no sekai e youkoso'},
+    {d:'hard',   jp:'量子通信の鍵交換を初期化',           ro:'ryoushi tsuushin no kagi koukan o shokika'},
+    {d:'hard',   jp:'脳直結インターフェースを同期する',   ro:'nouchokketsu intaafeesu o douki suru'},
+    {d:'expert', jp:'仮想都市の防壁を突破し再構築する。', ro:'kasou toshi no bouheki o toppa shi saikouchiku suru'},
+    // ホラー/怪異
+    {d:'normal', jp:'深夜の病院で何かが動いた',           ro:'shinya no byouin de nanika ga ugoita'},
+    {d:'normal', jp:'廃墟に差す月光が不気味だ',           ro:'haikyo ni sasu gekkou ga bukimi da'},
+    {d:'hard',   jp:'足音が廊下の奥で止まった',           ro:'ashioto ga rouka no oku de tomatta'},
+    {d:'hard',   jp:'鏡の中から誰かがこちらを覗く',       ro:'kagami no naka kara dareka ga kochira o nozoku'},
+    {d:'expert', jp:'漆黒の闇から現れるオーラを見た。',   ro:'shikkoku no yami kara arawareru oora o mita'},
+    // バトル/挑戦
+    {d:'normal', jp:'タイピングの限界を超えろ',           ro:'taipingu no genkai o koero'},
+    {d:'normal', jp:'一撃必殺のコンボを叩き込む',         ro:'ichigeki hissatsu no konbo o tatakikomu'},
+    {d:'hard',   jp:'集中して呼吸を整えろ',               ro:'shuuchuu shite kokyuu o totonoero'},
+    {d:'hard',   jp:'勝利の鍵は正確さと速度だ',           ro:'shouri no kagi wa seikaku sa to sokudo da'},
+    {d:'expert', jp:'反射神経を極限まで研ぎ澄ませ。',     ro:'hansha shinkei o kyokugen made togisumase'},
+    // 工場/生産
+    {d:'normal', jp:'コンベアラインが止まらない',         ro:'konbea rain ga tomaranai'},
+    {d:'normal', jp:'メンテナンスは計画的に',             ro:'mentenansu wa keikakuteki ni'},
+    {d:'hard',   jp:'品質管理の指標を可視化する',         ro:'hinshitsu kanri no shihyou o kashika suru'},
+    {d:'hard',   jp:'在庫最適化アルゴリズムを調整',       ro:'zaiko saitekika arugorizumu o chousei'},
+    // 追加いろいろ
+    {d:'normal', jp:'電脳空間にダイブする',               ro:'dennou kuukan ni daibu suru'},
+    {d:'normal', jp:'光と影が交差する路地裏',             ro:'hikari to kage ga kousa suru rojiura'},
+    {d:'hard',   jp:'静寂の向こうで機械が目覚める',       ro:'seijaku no mukou de kikai ga mezameru'},
+    {d:'expert', jp:'零と一の狭間で運命が分岐する。',     ro:'zero to ichi no hazama de unmei ga bunki suru'},
+    {d:'expert', jp:'量子もつれが現実を撓ませる。',       ro:'ryoushi motsure ga genjitsu o tawamase ru'},
+    {d:'expert', jp:'深層学習が未知のパターンを生成。',   ro:'shinsou gakushuu ga michi no pataan o seisei'},
+    {d:'expert', jp:'終末予報が静かに更新された。',       ro:'shuumatsu yoho ga shizuka ni koushin sareta'},
+    {d:'expert', jp:'手順を守りラインを安定させる。',     ro:'tejun o mamori rain o antei saseru'}
+  ];
+  const ORDER = ['easy','normal','hard','expert'];
+
+  // ======= Auras (base + GOD/DARKNESS/ELEMENT + attributes) =======
+  // RAINBOW FRAME is special unlock-only (not in roll)
+  const RAINBOW_KEY = 'RAINBOW FRAME';
+  const AURAS = [
+    {key:'PRO TYPER', name:'PRO TYPER', denom:1000000000, mult:5000, color:'rainbow',        classDot:'dProTyper', classText:'nProTyper'},
+    {key:'OVERLORD',  name:'OVERLORD',  denom: 850000, mult:3000, color:'var(--overlord1)', classDot:'dOverlord', classText:'nOverlord'},
+    {key:'ELEMENT',   name:'ELEMENT',   denom:100000, mult:400, color:'var(--neonEl)', classDot:'dC',    classText:'nC'},
+    {key:'DARKNESS',  name:'DARKNESS',  denom: 99999, mult:300, color:'var(--neonD)',  classDot:'dD',    classText:'nD'},
+    {key:'ULTIMATE',  name:'ULTIMATE',  denom: 98765, mult:350, color:'var(--ultimate)', classDot:'dUltimate', classText:'nUltimate'},
+    {key:'GOD',       name:'GOD',       denom: 50000, mult:250, color:'var(--neonG)',  classDot:'dG',    classText:'nG'},
+    {key:'BERSERK',   name:'BERSERK',   denom: 44444, mult:260, color:'var(--berserk)', classDot:'dBerserk', classText:'nBerserk'},
+    {key:'ZOMBIE',    name:'ZOMBIE',    denom: 20000, mult:220, color:'var(--zombie)', classDot:'dZombie', classText:'nZombie'},
+    {key:'CELESTIAL', name:'CELESTIAL', denom: 10000, mult:200, color:'var(--neonCe)', classDot:'dCe',   classText:'nCe'},
+    {key:'SUPERNOVA', name:'SUPERNOVA', denom:  8888, mult:170, color:'var(--supernova)', classDot:'dSupernova', classText:'nSupernova'},
+    {key:'MYTHICAL',  name:'MYTHICAL',  denom:  2500, mult: 50, color:'var(--neonM)',  classDot:'dM',    classText:'nM' },
+    {key:'CAT NIGHT', name:'CAT NIGHT', denom:  2222, mult: 45, color:'var(--catnight)', classDot:'dCatNight', classText:'nCatNight'},
+    {key:'TIME LEAP', name:'TIME LEAP', denom:  1234, mult: 28, color:'var(--timeleap)', classDot:'dTimeLeap', classText:'nTimeLeap'},
+    {key:'CRYSTAL',   name:'CRYSTAL',   denom:   350, mult:  7, color:'var(--crystal)', classDot:'dCrystal', classText:'nCrystal'},
+    {key:'LEGENDARY', name:'LEGENDARY', denom:   500, mult: 15, color:'var(--neonL)',  classDot:'dL',    classText:'nL' },
+    {key:'GLITCH',    name:'GLITCH',    denom:   404, mult: 12, color:'var(--glitch)', classDot:'dGlitch', classText:'nGlitch'},
+    {key:'EPIC',      name:'EPIC',      denom:   100, mult:  5, color:'var(--neonE)',  classDot:'dE',    classText:'nE' },
+    {key:'BREAK',     name:'BREAK',     denom:    45, mult:  2, color:'var(--brk)',    classDot:'dBreak', classText:'nBreak'},
+    {key:'FIRE',      name:'FIRE',      denom:   200, mult:  3, color:'var(--fire)',   classDot:'dFire', classText:'nFire'},
+    {key:'SNOW',      name:'SNOW',      denom:   250, mult:  3, color:'var(--snow)',   classDot:'dSnow', classText:'nSnow'},
+    {key:'ICE',       name:'ICE',       denom:   300, mult:  4, color:'var(--ice)',    classDot:'dIce',  classText:'nIce'},
+    {key:'LUCKY',     name:'LUCKY',     denom:   777, mult: 10, color:'var(--lucky)',  classDot:'dLucky',classText:'nLucky'},
+    {key:'RARE',      name:'RARE',      denom:    20, mult:  2, color:'var(--neonR)',  classDot:'dR',    classText:'nR' },
+    {key:'DIAMOND', name:'DIAMOND', denom:11000, mult:4.0, color:'#b0e0e6', classDot:'dDiamond', classText:'nDiamond'},
+    {key:'THE SWORD', name:'THE SWORD', denom:1000, mult:2.5, color:'#e6e6fa', classDot:'dSword', classText:'nSword'},
+    {key:'WOOD', name:'WOOD', denom:250, mult:1.5, color:'#8b4513', classDot:'dWood', classText:'nWood'},
+    {key:'STONE',     name:'STONE',     denom:     7, mult:1.3, color:'var(--stone)',  classDot:'dStone', classText:'nStone'},
+    {key:'LIGHTNING', name:'LIGHTNING', denom: 6000, mult: 5.0, color:'var(--lightning)', classDot:'dLightning', classText:'nLightning'},
+    {key:'WATER',     name:'WATER',     denom:   300, mult: 1.8, color:'var(--water)', classDot:'dWater', classText:'nWater'},
+    {key:'BLACK HOLE',name:'BLACK HOLE',denom:     0, mult:500, color:'var(--blackhole)', classDot:'dBlackHole', classText:'nBlackHole'},
+    {key:'OBSIDIAN',  name:'OBSIDIAN',  denom:     0, mult:700, color:'var(--obsidian)', classDot:'dObsidian', classText:'nObsidian'},
+    {key:'COMPRESSED DIRT', name:'COMPRESSED DIRT', denom:70000, mult:6.5, color:'var(--compressedDirt)', classDot:'dCompressedDirt', classText:'nCompressedDirt', rollable:false},
+    {key:'DEMONIC LUMP', name:'DEMONIC LUMP', denom:666666, mult:22.0, color:'var(--demonicLump)', classDot:'dDemonicLump', classText:'nDemonicLump', rollable:false},
+    {key:'UNCOMMON',  name:'UNCOMMON',  denom:     4, mult:1.5, color:'var(--neonUC)', classDot:'dUC',   classText:'nUC'},
+    {key:'GRASS', name:'GRASS', denom:100, mult:1.2, color:'#00ff00', classDot:'dGrass', classText:'nGrass'},
+    {key:'BLOOD', name:'BLOOD', denom:2000, mult:3.0, color:'#8a0000', classDot:'dBlood', classText:'nBlood'},
+    {key:'HUMAN', name:'HUMAN', denom:1234567, mult:50.0, color:'#ffffff', classDot:'dHuman', classText:'nHuman', rollable:false},
+    {key:'DIRT',      name:'DIRT',      denom:     3, mult:1.05, color:'var(--dirt)', classDot:'dDirt', classText:'nDirt'},
+    {key:'COMMON',    name:'COMMON',    denom:   1.2, mult:  1, color:'var(--neonC)',  classDot:'dC',    classText:'nC' }
+  ];
+  const AURA_INDEX = {}; AURAS.forEach((a,i)=>AURA_INDEX[a.name]=i);
+
+  // ======= Utilities =======
+  function escapeHtml(s){return s.replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+  function fmt(n){ return Math.floor(n).toLocaleString('en-US'); }
+  function mapDisplay(display){
+    let raw = '';
+    const idx = [];
+    let c = 0;
+    for(const ch of display.toLowerCase()){
+      if(/[a-z]/.test(ch)){ raw += ch; idx.push(c); c++; }
+      else idx.push(-1);
+    }
+    return {raw, map:idx};
+  }
+  function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+  function roundDen(d){
+    if(d < 10) return d.toFixed(2);
+    if(d < 1000) return Math.round(d).toString();
+    if(d < 10000) return (Math.round(d/10)*10).toLocaleString('en-US');
+    if(d < 100000) return (Math.round(d/100)*100).toLocaleString('en-US');
+    return (Math.round(d/1000)*1000).toLocaleString('en-US');
+  }
+
+  // ======= Audio (Web Audio API) =======
+  const AudioSys = {
+    ctx:null, master:null,
+    ensure(){
+      if(!this.ctx){
+        const AC = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AC();
+        this.master = this.ctx.createGain();
+        this.master.gain.value = 0.95;
+        this.master.connect(this.ctx.destination);
+      }
+      if(this.ctx.state === 'suspended') this.ctx.resume();
+      return this.ctx;
+    },
+    noise(duration=0.12, vol=0.2, color='white'){
+      const ctx = this.ensure();
+      const sr = ctx.sampleRate;
+      const bf = ctx.createBuffer(1, Math.max(1, Math.floor(sr*duration)), sr);
+      const data = bf.getChannelData(0);
+      let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+      for(let i=0;i<data.length;i++){
+        let n = Math.random()*2-1;
+        if(color==='pink'){
+          b0 = 0.99886*b0 + n*0.0555179;
+          b1 = 0.99332*b1 + n*0.0750759;
+          b2 = 0.96900*b2 + n*0.1538520;
+          b3 = 0.86650*b3 + n*0.3104856;
+          b4 = 0.55000*b4 + n*0.5329522;
+          b5 = -0.7616*b5 - n*0.0168980;
+          n = b0 + b1 + b2 + b3 + b4 + b5 + b6 + n*0.5362;
+          n *= 0.11; b6 = n*0.115926;
+        }
+        data[i] = n;
+      }
+      const src = ctx.createBufferSource(); src.buffer = bf;
+      const g = ctx.createGain(); g.gain.value = 0;
+      src.connect(g).connect(this.master);
+      const t = ctx.currentTime;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(vol, t + 0.006);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+      src.start(t);
+      src.stop(t + duration + 0.05);
+    },
+    beep({freq=440, type='sine', vol=0.2, attack=0.004, decay=0.08, sustain=0.0, release=0.06, sweep=0}={}){
+      const ctx = this.ensure();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      const f = ctx.createBiquadFilter();
+      f.type = 'lowpass'; f.frequency.value = 12000;
+      o.type = type;
+      const t0 = ctx.currentTime + 0.001;
+      o.frequency.setValueAtTime(Math.max(40,freq), t0);
+      if(sweep !== 0){
+        const target = Math.max(40, freq * Math.pow(2, sweep));
+        o.frequency.exponentialRampToValueAtTime(target, t0 + attack + decay + release);
+      }
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.linearRampToValueAtTime(vol, t0 + attack);
+      g.gain.exponentialRampToValueAtTime(Math.max(0.0001, vol*sustain + 0.0001), t0 + attack + decay);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + attack + decay + release);
+      o.connect(g).connect(f).connect(this.master);
+      o.start(t0); o.stop(t0 + attack + decay + release + 0.03);
+    },
+    // Cyber laser typing SE
+    type(){
+      this.beep({freq:2200, type:'square', vol:0.16, attack:0.0015, decay:0.03, release:0.05, sweep:-0.25});
+      this.beep({freq:3200, type:'triangle', vol:0.12, attack:0.001, decay:0.025, release:0.04, sweep:-0.35});
+      this.noise(0.02, 0.05, 'white');
+    },
+    // crackle for FIRE equip typing
+    crackle(){
+      this.noise(0.025, 0.12, 'white');
+      this.beep({freq:600, type:'square', vol:0.06, attack:0.001, decay:0.03, release:0.02, sweep:-0.6});
+    },
+    // Heavy crash miss
+    miss(){
+      this.beep({freq:60, type:'sawtooth', vol:0.4, attack:0.003, decay:0.15, release:0.2, sweep:-0.2});
+      this.noise(0.18, 0.35, 'pink');
+    },
+    levelUp(){
+      let d=0;
+      const base=660;
+      const seq=[0,3,7,12,15,19].map(s=>base*Math.pow(2,s/12));
+      seq.forEach((f,i)=>{
+        setTimeout(()=>{ this.beep({freq:f, type:'triangle', vol:0.2, attack:0.004, decay:0.06, release:0.06, sweep:0.2}); }, d);
+        d += 70;
+      });
+      setTimeout(()=>this.noise(0.07,0.12,'white'), 90);
+    },
+    // Aura SFX
+    auraCommon(){ this.beep({freq:360, type:'triangle', vol:0.17, attack:0.004, decay:0.11, release:0.1, sweep:0.45}); },
+    auraUncommon(){ this.beep({freq:420, type:'triangle', vol:0.18, attack:0.004, decay:0.13, release:0.11, sweep:0.55}); },
+    auraRare(){ this.beep({freq:320, type:'sawtooth', vol:0.26, attack:0.004, decay:0.2, release:0.2, sweep:0.9}); this.noise(0.16, 0.2, 'white'); },
+    auraEpic(){
+      this.beep({freq:520, type:'square', vol:0.28, attack:0.004, decay:0.22, release:0.26, sweep:1.4});
+      this.beep({freq:1040, type:'sine', vol:0.18, attack:0.002, decay:0.18, release:0.2, sweep:0.7});
+      this.noise(0.22, 0.28, 'pink');
+    },
+    auraLegendary(){
+      const chord = [440, 554.37, 659.25, 880];
+      chord.forEach((f,i)=>setTimeout(()=>this.beep({freq:f, type:'sawtooth', vol:0.28, attack:0.008, decay:0.22, release:0.28, sweep:0.9}), i*80));
+      setTimeout(()=>this.noise(0.28,0.28,'white'),60);
+    },
+    auraMythical(){
+      const seq=[220,330,495,742.5,1113.75];
+      seq.forEach((f,i)=>setTimeout(()=>this.beep({freq:f, type:'square', vol:0.3, attack:0.006, decay:0.22, release:0.24, sweep:1.0}), i*90));
+      setTimeout(()=>this.noise(0.36,0.34,'pink'),40);
+    },
+    auraCelestial(){
+      const seq=[261.63,349.23,466.16,622.25,830.61,1108.73];
+      seq.forEach((f,i)=>setTimeout(()=>this.beep({freq:f, type:'triangle', vol:0.32, attack:0.006, decay:0.24, release:0.28, sweep:1.2}), i*80));
+      setTimeout(()=>this.noise(0.42,0.38,'white'),50);
+    },
+    // GOD: multi huge bells
+    auraGod(){
+      const bells=[440,660,990,1485];
+      bells.forEach((f,i)=>setTimeout(()=>this.beep({freq:f, type:'sine', vol:0.36/(1+i*0.4), attack:0.004, decay:0.4, release:0.8, sweep:0.1}), i*80));
+      setTimeout(()=>this.noise(0.1,0.14,'white'),50);
+    },
+    // DARKNESS: rumble + abyss
+    auraDarkness(){
+      this.beep({freq:40, type:'sawtooth', vol:0.42, attack:0.02, decay:0.5, release:0.8, sweep:-0.3});
+      this.noise(0.6,0.34,'pink');
+    },
+    // ELEMENT: piercing + explosion
+    auraElement(){
+      this.beep({freq:1200, type:'square', vol:0.26, attack:0.001, decay:0.05, release:0.6, sweep:2.6});
+      this.noise(0.26,0.32,'white');
+    },
+    // New attribute sounds
+    auraFire(){ for(let i=0;i<6;i++) setTimeout(()=>this.crackle(), i*40); this.beep({freq:220, type:'triangle', vol:0.14, attack:0.003, decay:0.12, release:0.12, sweep:0.2}); },
+    auraSnow(){ const tones=[880,1175,1568]; tones.forEach((f,i)=>setTimeout(()=>this.beep({freq:f, type:'sine', vol:0.18, attack:0.004, decay:0.18, release:0.22, sweep:0}), i*80)); },
+    auraIce(){ this.beep({freq:2200, type:'square', vol:0.28, attack:0.001, decay:0.04, release:0.06, sweep:-0.8}); this.noise(0.22,0.28,'white'); },
+    auraLucky(){ const seq=[1200,1400,1600,1800,2000,2200,2400]; seq.forEach((f,i)=>setTimeout(()=>this.beep({freq:f, type:'triangle', vol:0.2, attack:0.001, decay:0.05, release:0.08, sweep:0.1}), i*60)); setTimeout(()=>this.noise(0.12,0.16,'white'), 80); },
+    // ===== New auras SFX =====
+    auraGlitch(){ for(let i=0;i<8;i++) setTimeout(()=>this.beep({freq:200+Math.random()*1800, type:'square', vol:0.14, attack:0.001, decay:0.03, release:0.02, sweep:(Math.random()>0.5?1:-1)}), i*45); this.noise(0.3,0.2,'white'); },
+    auraTimeLeap(){ const seq=[880,660,990,1320,1760]; seq.forEach((f,i)=>setTimeout(()=>this.beep({freq:f, type:'sine', vol:0.22, attack:0.008, decay:0.3, release:0.4, sweep:-0.2}), i*140)); },
+    auraCatNight(){ this.beep({freq:600, type:'sawtooth', vol:0.22, attack:0.02, decay:0.12, release:0.18, sweep:1.1}); setTimeout(()=>this.beep({freq:900, type:'sawtooth', vol:0.18, attack:0.01, decay:0.1, release:0.2, sweep:-0.9}), 160); },
+    auraSupernova(){ const seq=[220,440,660,880,1100,1320,1540]; seq.forEach((f,i)=>setTimeout(()=>this.beep({freq:f, type:'sawtooth', vol:0.3, attack:0.005, decay:0.25, release:0.3, sweep:1.4}), i*70)); this.noise(0.5,0.4,'pink'); },
+    auraUltimate(){ this.beep({freq:35, type:'sawtooth', vol:0.5, attack:0.01, decay:0.6, release:1.0, sweep:-0.1}); this.noise(0.8,0.5,'pink'); setTimeout(()=>this.noise(0.3,0.4,'white'),80); },
+    auraBlackHole(){ this.beep({freq:900, type:'sine', vol:0.3, attack:0.4, decay:0.6, release:0.4, sweep:-3.5}); this.noise(0.7,0.35,'pink'); },
+    auraProTyper(){ const seq=[261.63,329.63,392,523.25,659.25,783.99,1046.5,1318.5]; seq.forEach((f,i)=>setTimeout(()=>this.beep({freq:f, type:'triangle', vol:0.34, attack:0.006, decay:0.3, release:0.4, sweep:0.6}), 1100+i*90)); setTimeout(()=>this.noise(0.5,0.4,'white'), 1080); },
+    // ZOMBIE: dripping, groaning dark-green rot tone
+    auraZombie(){
+      this.beep({freq:90, type:'sawtooth', vol:0.32, attack:0.02, decay:0.5, release:0.6, sweep:-0.4});
+      this.beep({freq:180, type:'square', vol:0.16, attack:0.01, decay:0.4, release:0.5, sweep:-0.6});
+      this.noise(0.5, 0.3, 'pink');
+    },
+    // BERSERK: raging blood-red battle roar
+    auraBerserk(){
+      this.beep({freq:120, type:'sawtooth', vol:0.45, attack:0.005, decay:0.35, release:0.4, sweep:0.7});
+      this.beep({freq:70, type:'square', vol:0.4, attack:0.005, decay:0.4, release:0.5, sweep:-0.2});
+      this.noise(0.4, 0.4, 'white');
+    },
+    // OVERLORD: crackling black-crimson electric domination
+    auraOverlord(){
+      const seq=[55,110,165,220,330];
+      seq.forEach((f,i)=>setTimeout(()=>this.beep({freq:f, type:'sawtooth', vol:0.4, attack:0.004, decay:0.3, release:0.4, sweep:-0.3}), i*70));
+      this.noise(0.8, 0.5, 'pink');
+      setTimeout(()=>this.noise(0.3, 0.4, 'white'), 120);
+    },
+    // Forced confirmation for 1/5000+ ultra rare rolls: piercing siren + explosive sub-bass thunder
+    ultraConfirm(){
+      this.beep({freq:2600, type:'sawtooth', vol:0.5, attack:0.005, decay:0.5, release:0.6, sweep:0.9});
+      this.beep({freq:3400, type:'square', vol:0.42, attack:0.004, decay:0.4, release:0.5, sweep:0.6});
+      this.beep({freq:4200, type:'sine', vol:0.3, attack:0.003, decay:0.3, release:0.4, sweep:0.5});
+      setTimeout(()=>{
+        this.beep({freq:32, type:'sawtooth', vol:0.6, attack:0.01, decay:0.9, release:1.4, sweep:-0.3});
+        this.noise(1.2, 0.55, 'pink');
+        this.noise(0.4, 0.45, 'white');
+      }, 260);
+      for(let i=0;i<4;i++){
+        setTimeout(()=>{
+          this.beep({freq:45+i*4, type:'sawtooth', vol:0.35, attack:0.02, decay:0.5, release:0.6, sweep:-0.15});
+          this.noise(0.3, 0.3, 'pink');
+        }, 500 + i*220);
+      }
+    },
+    // Rainbow Unlock fanfare
+    rainbowFanfare(){
+      const seq=[392,523.25,659.25,783.99,1046.5];
+      seq.forEach((f,i)=>setTimeout(()=>this.beep({freq:f, type:'sawtooth', vol:0.32, attack:0.01, decay:0.18, release:0.32, sweep:0.3}), i*120));
+      this.noise(0.22,0.25,'white');
+    },
+    droneShield(){ this.beep({freq:780, type:'triangle', vol:0.2, attack:0.002, decay:0.08, release:0.08, sweep:0.4}); },
+    droneDrop(){ this.beep({freq:440, type:'triangle', vol:0.18, attack:0.005, decay:0.18, release:0.18, sweep:0.6}); this.noise(0.08,0.10,'white'); },
+    // Achievement unlock fanfare
+    achievementFanfare(){
+      const seq=[523.25,659.25,783.99,1046.5,1318.5];
+      seq.forEach((f,i)=>setTimeout(()=>this.beep({freq:f, type:'triangle', vol:0.26, attack:0.006, decay:0.16, release:0.22, sweep:0.2}), i*90));
+      setTimeout(()=>this.noise(0.18,0.2,'white'), 60);
+    },
+    // Craft success chime
+    craftSuccess(){
+      const seq=[440,660,880];
+      seq.forEach((f,i)=>setTimeout(()=>this.beep({freq:f, type:'sine', vol:0.24, attack:0.004, decay:0.16, release:0.2, sweep:0.3}), i*80));
+    },
+    // Craft failure thud
+    craftFail(){ this.beep({freq:120, type:'sawtooth', vol:0.24, attack:0.004, decay:0.12, release:0.16, sweep:-0.3}); this.noise(0.1,0.14,'pink'); },
+    // BLACK HOLE craft: deep heavy bass boom
+    blackHoleCraft(){
+      this.beep({freq:28, type:'sawtooth', vol:0.55, attack:0.05, decay:0.9, release:1.6, sweep:-0.4});
+      this.beep({freq:45, type:'sine', vol:0.4, attack:0.08, decay:1.0, release:1.8, sweep:-0.2});
+      this.noise(1.2, 0.4, 'pink');
+      setTimeout(()=>this.noise(0.5,0.3,'white'), 300);
+    }
+  };
+
+  // ======= State =======
+  let money = 0;
+  let products = 0;
+  let combo = 0;
+  let screenShakeTime = 0; // frames remaining for mega-quake (set to 40 on ultra rare confirm)
+  let maxCombo = 0;
+
+  let basePerChar = 1;
+  let unitMult = 1.0;
+  let comboCoefBase = 0.015;
+  let comboCoefExtra = 0.0;
+  function comboCoef(){ return comboCoefBase + comboCoefExtra; }
+
+  let productChars = 10;
+  let totalCorrect = 0;
+  let totalClears = 0;           // 合計語数
+  let totalMoneyEarned = 0;      // 累計獲得資金
+
+  // RNG booster (Luck multiplier)
+  let rngBoostLv = 0;
+  function boosterLuck(){ return 1 + rngBoostLv * 0.25; }
+
+  // Equip Luck mapping
+  function equipLuckMult(aura){
+    switch(aura){
+      case 'COMMON': return 1.0;
+      case 'UNCOMMON': return 1.1;
+      case 'RARE': return 1.25;
+      case 'EPIC': return 1.5;
+      case 'FIRE': return 1.35;
+      case 'SNOW': return 1.30;
+      case 'ICE': return 1.28;
+      case 'LUCKY': return 3.0;
+      case 'LEGENDARY': return 2.0;
+      case 'MYTHICAL': return 2.5;
+      case 'CELESTIAL': return 3.0;
+      case 'GOD': return 3.5;
+      case 'DARKNESS': return 4.0;
+      case 'ELEMENT': return 4.5;
+      case 'GLITCH': return 2.5;
+      case 'TIME LEAP': return 3.0;
+      case 'CAT NIGHT': return 3.5;
+      case 'SUPERNOVA': return 5.0;
+      case 'ULTIMATE': return 15.0;
+      case 'BLACK HOLE': return 9.0;
+      case 'OBSIDIAN': return 4.0;
+      case 'WOOD': return 1.5;
+      case 'THE SWORD': return 2.5;
+      case 'DIAMOND': return 4.0;
+      case 'STONE': return 1.05;
+      case 'DIRT': return 1.05;
+      case 'GRASS': return 1.2;
+      case 'BLOOD': return 3.0;
+      case 'HUMAN': return 50.0;
+      case 'WATER': return 1.8;
+      case 'LIGHTNING': return 5.0;
+      case 'COMPRESSED DIRT': return 6.5;
+      case 'DEMONIC LUMP': return 22.0;
+      case 'BREAK': return 1.15;
+      case 'CRYSTAL': return 1.8;
+      case 'PRO TYPER': return 100.0;
+      case 'RAINBOW FRAME': return 9.0;
+      case 'ZOMBIE': return 5.5;
+      case 'BERSERK': return 7.5;
+      case 'OVERLORD': return 25.0;
+      default: return 1.0;
+    }
+  }
+
+  // Idle money
+  let autoMoneyRate = 0;
+  let autoAccMoney = 0;
+
+  // Drone
+  let droneLv = 0;
+  let droneShieldCooldown = 12;
+  let lastShieldTime = -999;
+  let droneDropInterval = 18;
+  let droneDropAcc = 0;
+
+  // Current prompt
+  let cur = null; // {jp, roDisp, roRaw, map, d}
+  let pos = 0;
+  let clears = 0;
+
+  // Aura collection persistence
+  let coll = loadCollection();
+  let lastDrop = 'NONE';
+  let equippedAura = loadEquip() || 'NONE';
+
+  // Counters for mission tracking
+  let auraCounts = loadAuraCounts(); // {RARE:n, LUCKY:n, EPIC:n, FIRE:n, ICE:n}
+  let totalUpgrades = loadUpgradesTotal(); // sum upgrades ever
+
+  // ======= Crafted equipment (permanent Luck bonuses) =======
+  let craftedItems = loadCraftedItems(); // crafted equipment persistence
+  const WEAPON_BONUS = {flameSword:1.10, blizzardSword:1.15, stoneSword:1.25, woodSword:1.10, diamondSword:1.90};
+  let equippedWeapon = loadEquippedWeapon();
+  function loadEquippedWeapon(){ try{ const w=localStorage.getItem('NEON_WEAPON_SLOT_V1')||'NONE'; return WEAPON_BONUS[w] ? w : 'NONE'; }catch(e){ return 'NONE'; } }
+  function saveEquippedWeapon(){ try{localStorage.setItem('NEON_WEAPON_SLOT_V1',equippedWeapon);}catch(e){} }
+  function weaponOwned(id){ return !!craftedItems[id]; }
+  function equipWeapon(id){
+    if(id!=='NONE' && !weaponOwned(id)) return;
+    equippedWeapon=id||'NONE'; saveEquippedWeapon(); renderCraftUI(); updateHUD();
+  }
+
+  function loadCraftedItems(){
+    try{
+      const s = localStorage.getItem('NEON_CRAFTED_ITEMS_V1');
+      if(s){
+        const o = JSON.parse(s);
+        return {
+          elementGantlet: !!o.elementGantlet,
+          flameSword: !!o.flameSword,
+          blizzardSword: !!o.blizzardSword,
+          stoneSword: !!o.stoneSword,
+          woodSword: !!o.woodSword,
+          diamondSword: !!o.diamondSword,
+          compressedDirt: !!o.compressedDirt,
+          demonicLump: !!o.demonicLump
+        };
+      }
+    }catch(e){}
+    return {elementGantlet:false, flameSword:false, blizzardSword:false, stoneSword:false, woodSword:false, diamondSword:false, compressedDirt:false, demonicLump:false};
+  }
+  function saveCraftedItems(){
+    try{ localStorage.setItem('NEON_CRAFTED_ITEMS_V1', JSON.stringify(craftedItems)); }catch(e){}
+  }
+  let inventoryItems = loadInventoryItems();
+  function loadInventoryItems(){
+    try{ const s=localStorage.getItem('NEON_INVENTORY_ITEMS_V1'); if(s){ const o=JSON.parse(s); return {lightningPotion:Math.max(0,o.lightningPotion|0), medicine:Math.max(0,o.medicine|0)}; } }catch(e){}
+    return {lightningPotion:0, medicine:0};
+  }
+  function saveInventoryItems(){ try{localStorage.setItem('NEON_INVENTORY_ITEMS_V1',JSON.stringify(inventoryItems));}catch(e){} }
+  function renderItemsUI(){
+    const p=document.getElementById('lightningPotionCount'), m=document.getElementById('medicineCount'), b=document.getElementById('useLightningPotionBtn');
+    if(p)p.textContent='x'+inventoryItems.lightningPotion; if(m)m.textContent='x'+inventoryItems.medicine; if(b)b.disabled=inventoryItems.lightningPotion<=0;
+  }
+  function updatePotionTimer(){
+    const el=document.getElementById('potionTimer'); if(!el)return; const rem=Math.max(0,lightningPotionUntil-performance.now());
+    if(rem>0){ const sec=Math.ceil(rem/1000), mm=String(Math.floor(sec/60)).padStart(2,'0'), ss=String(sec%60).padStart(2,'0'); el.style.display='block'; el.textContent='⚡ 雷のポーション発動中！ 残り時間: '+mm+':'+ss; }
+    else { el.style.display='none'; }
+  }
+  function useLightningPotion(){
+    AudioSys.ensure(); if(inventoryItems.lightningPotion<=0)return; inventoryItems.lightningPotion--; lightningPotionUntil=Math.max(performance.now(),lightningPotionUntil)+180000; saveInventoryItems(); renderItemsUI(); updatePotionTimer(); updateHUD();
+    flashOnce(); screenShake();
+  }
+  function craftLightningPotion(){
+    AudioSys.ensure(); if(matCount('WATER')>=1 && matCount('LIGHTNING')>=1){ consumeMat('WATER',1); consumeMat('LIGHTNING',1); inventoryItems.lightningPotion++; saveCollection(); saveInventoryItems(); AudioSys.craftSuccess(); craftFlashPanel(); craftPopupText('雷のポーション完成！','#ffff00'); renderCraftUI(); renderItemsUI(); renderDex(); renderOdds(); updateHUD(); } else { AudioSys.craftFail(); craftShakeEl('craftLightningPotionBtn'); }
+  }
+  function craftMedicine(){
+    AudioSys.ensure(); if(matCount('BLOOD')>=1 && matCount('GRASS')>=1){ consumeMat('BLOOD',1); consumeMat('GRASS',1); inventoryItems.medicine++; saveCollection(); saveInventoryItems(); AudioSys.craftSuccess(); craftFlashPanel(); craftPopupText('薬 完成！','#ff8aa0'); renderCraftUI(); renderItemsUI(); renderDex(); renderOdds(); updateHUD(); } else { AudioSys.craftFail(); craftShakeEl('craftMedicineBtn'); }
+  }
+  function craftHuman(){
+    AudioSys.ensure(); if(inventoryItems.medicine>=1 && matCount('ZOMBIE')>=1){ inventoryItems.medicine--; consumeMat('ZOMBIE',1); coll['HUMAN'].unlocked=true; coll['HUMAN'].count=(coll['HUMAN'].count||0)+1; saveCollection(); saveInventoryItems();
+      const v=document.createElement('div'); v.style.cssText='position:fixed;inset:0;z-index:10020;background:#fff;animation:protyperFlashSeq 1.8s ease-out forwards;pointer-events:none'; document.body.appendChild(v);
+      try{ AudioSys.ultraConfirm(); }catch(e){} screenShakeXL(); screenShakeTime=80; craftPopupText('HUMAN 錬成成功！','#fff'); setTimeout(()=>v.remove(),1900); renderCraftUI(); renderItemsUI(); renderDex(); renderOdds(); updateHUD();
+    } else { AudioSys.craftFail(); craftShakeEl('craftHumanBtn'); }
+  }
+
+  // ======= Achievements (称号) =======
+  const ACHIEVEMENTS = [
+    {id:'legend_start', icon:'🌟', name:'伝説の始まり', desc:'ミッション10をクリアし、ICEとFIREを両方排出した。'},
+    {id:'superhuman',   icon:'💪', name:'超人',         desc:'累計タイピング語数が1000語を突破した。'},
+    {id:'muscle',       icon:'🦾', name:'MUSCLE',       desc:'累計タイピング語数が2000語を突破した。'},
+    {id:'daikichi',     icon:'🎋', name:'大吉',         desc:'確率1/5000以上の超激レアオーラを自力で引き当てた。'},
+    {id:'gambler',      icon:'🎰', name:'ギャンブラー', desc:'黒曜石クラフト（成功率10%）を成功させ、OBSIDIANを入手した。'},
+    {id:'thanos',       icon:'🧤', name:'サノス',       desc:'装備品「ELEMENT GANTLET」をクラフトした。'},
+    {id:'burnedout',    icon:'🔥', name:'燃え尽きた',   desc:'装備品「FLAME SWORD」をクラフトした。'},
+    {id:'freezer',      icon:'🧊', name:'冷凍庫',       desc:'装備品「BLIZZARD SWORD」をクラフトした。'}
+  ];
+  let achievements = loadAchievements(); // {id: true/false}
+  function loadAchievements(){
+    try{
+      const s = localStorage.getItem('NEON_ACHIEVEMENTS_V1');
+      if(s){
+        const o = JSON.parse(s);
+        ACHIEVEMENTS.forEach(a=>{ if(o[a.id]===undefined) o[a.id]=false; });
+        return o;
+      }
+    }catch(e){}
+    const o = {};
+    ACHIEVEMENTS.forEach(a=>o[a.id]=false);
+    return o;
+  }
+  function saveAchievements(){
+    try{ localStorage.setItem('NEON_ACHIEVEMENTS_V1', JSON.stringify(achievements)); }catch(e){}
+  }
+  function unlockAchievement(id){
+    if(achievements[id]) return;
+    achievements[id] = true;
+    saveAchievements();
+    renderAchievements();
+    const def = ACHIEVEMENTS.find(a=>a.id===id);
+    if(def) showAchievementToast(def);
+  }
+  function renderAchievements(){
+    const list = document.getElementById('achList');
+    if(!list) return;
+    list.innerHTML = '';
+    ACHIEVEMENTS.forEach(a=>{
+      const row = document.createElement('div');
+      const got = !!achievements[a.id];
+      row.className = 'achRow ' + (got ? 'achUnlocked' : 'achLocked');
+      const icon = document.createElement('div'); icon.className='achIcon'; icon.textContent = got ? a.icon : '🔒';
+      const body = document.createElement('div'); body.className='achBody';
+      const nm = document.createElement('div'); nm.className='achName'; nm.textContent = a.name + (got ? '（解除済み）' : '（未解除）');
+      const ds = document.createElement('div'); ds.className='achDesc'; ds.textContent = a.desc;
+      body.appendChild(nm); body.appendChild(ds);
+      row.appendChild(icon); row.appendChild(body);
+      list.appendChild(row);
+    });
+  }
+  function showAchievementToast(def){
+    try{ AudioSys.achievementFanfare(); }catch(e){}
+    const t = document.createElement('div');
+    t.className = 'achToast';
+    t.innerHTML = `<div class="tTitle">🏆 実績解除 ACHIEVEMENT UNLOCKED</div><div class="tName">${def.icon} ${escapeHtml(def.name)}</div>`;
+    document.body.appendChild(t);
+    setTimeout(()=>t.remove(), 3800);
+  }
+
+  // Missions (Story 1-10, fixed order)
+  const STORY = [
+    {id:1,  type:'combo_max',     need:50,     reward:10000,   desc:'50コンボ達成せよ。'},
+    {id:2,  type:'words_total',   need:150,    reward:25000,   desc:'合計150語をタイピングせよ。'},
+    {id:3,  type:'aura_count',    need:2,      reward:50000,   desc:'オーラ「RARE」を2回排出せよ',   key:'RARE'},
+    {id:4,  type:'upgrades',      need:10,     reward:75000,   desc:'設備を合計10回アップグレードせよ。'},
+    {id:5,  type:'aura_count',    need:1,      reward:150000,  desc:'オーラ「LUCKY」を1回排出せよ',   key:'LUCKY'},
+    {id:6,  type:'money_total',   need:500000, reward:200000,  desc:'資金を累計500,000C貯めよ。'},
+    {id:7,  type:'combo_max',     need:200,    reward:350000,  desc:'200コンボを達成せよ。'},
+    {id:8,  type:'aura_count',    need:2,      reward:500000,  desc:'オーラ「EPIC」を2回排出せよ',    key:'EPIC'},
+    {id:9,  type:'words_total',   need:2000,   reward:1000000, desc:'合計2000語をタイピングせよ。'},
+    {id:10, type:'aura_both',     need:1,      reward:0,       desc:'オーラ「ICE」と「FIRE」を各1回以上排出せよ', keys:['ICE','FIRE']}
+  ];
+  let storyState = loadStoryState(); // {idx:0..9, progress: {}} idx pointing current mission
+
+  // ======= UI =======
+  const elMoney = document.getElementById('money');
+  const elProd  = document.getElementById('prod');
+  const elMult  = document.getElementById('mult');
+  const elJP   = document.getElementById('jp');
+  const elRoma = document.getElementById('roma');
+  const typedInput = document.getElementById('typedInput');
+  const elHint = document.getElementById('hint');
+  const elMist = document.getElementById('mist');
+  const progLbl = document.getElementById('progLbl');
+  const progBar = document.getElementById('progBar');
+  const rngMultLbl = document.getElementById('rngMultLbl');
+  const rngBar = document.getElementById('rngBar');
+  const ring = document.getElementById('ring');
+  const flash = document.getElementById('flash');
+  const strobe = document.getElementById('strobe');
+  const megaStrobe = document.getElementById('megaStrobe');
+  const missFlash = document.getElementById('missFlash');
+  const center = document.getElementById('center');
+  const droneStatus = document.getElementById('droneStatus');
+  const oddsList = document.getElementById('oddsList');
+  const dex = document.getElementById('dex');
+  const playBox = document.getElementById('play');
+  const equipFx = document.getElementById('equipFx');
+  const equipNowName = document.getElementById('equipNowName');
+  const lastDropName = document.getElementById('lastDropName');
+  const comboLbl = document.getElementById('comboLbl');
+  const comboBar = document.getElementById('comboBar');
+  const borderWave = document.getElementById('borderWave');
+  const cutinOverlay = document.getElementById('cutin-overlay');
+  const cutinTextEl = document.getElementById('cutinText');
+  const cutinSubEl = document.getElementById('cutinSub');
+
+  const buy1 = document.getElementById('buy1');
+  const buy2 = document.getElementById('buy2');
+  const buy3 = document.getElementById('buy3');
+  const buy4 = document.getElementById('buy4');
+  const buy5 = document.getElementById('buy5');
+  const lv1  = document.getElementById('lv1');
+  const lv2  = document.getElementById('lv2');
+  const lv3  = document.getElementById('lv3');
+  const lv4  = document.getElementById('lv4');
+  const lv5  = document.getElementById('lv5');
+
+  // Missions UI
+  const msDesc = document.getElementById('msDesc');
+  const msProgText = document.getElementById('msProgText');
+  const msBar = document.getElementById('msBar');
+  const msReward = document.getElementById('msReward');
+  const msStatus = document.getElementById('msStatus');
+  const msLevel = document.getElementById('msLevel');
+  const missionsBox = document.getElementById('missions');
+
+  // Particles canvas
+  const canvas = document.getElementById('fx');
+  const ctx = canvas.getContext('2d');
+  const canvasTop = document.getElementById('fxTop');
+  const ctxTop = canvasTop.getContext('2d');
+  let particles = [];
+  let particlesTop = [];
+  const MAX_PARTICLES = 1100;
+  const MAX_PARTICLES_TOP = 1500;
+  function trimParticles(){
+    if(particles.length > MAX_PARTICLES) particles.splice(0, particles.length-MAX_PARTICLES);
+    if(particlesTop.length > MAX_PARTICLES_TOP) particlesTop.splice(0, particlesTop.length-MAX_PARTICLES_TOP);
+  }
+  function resize(){ canvas.width = innerWidth; canvas.height = innerHeight; canvasTop.width = innerWidth; canvasTop.height = innerHeight; }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // ======= Difficulty and target selection =======
+  function pickDifficulty(){
+    const c = clears;
+    let w = {easy:50, normal:34, hard:12, expert:4};
+    if(c>=6){ w.easy-=12; w.normal+=8; w.hard+=4; }
+    if(c>=12){ w.easy-=8; w.normal+=4;  w.hard+=4; }
+    if(c>=20){ w.normal-=10; w.hard+=8; w.expert=(w.expert||0)+2; }
+    if(c>=30){ w.hard-=4; w.expert=(w.expert||0)+4; }
+    const arr=[]; for(const k of ORDER) for(let i=0;i<Math.max(0,w[k]||0);i++) arr.push(k);
+    return arr[(Math.random()*arr.length)|0] || 'normal';
+  }
+  function pickWord(){
+    const d = pickDifficulty();
+    const pool = BANK.filter(x=>x.d===d);
+    const w = pool[(Math.random()*pool.length)|0];
+    const disp = w.ro;
+    const m = mapDisplay(disp);
+    return {jp:w.jp, roDisp:disp, roRaw:m.raw, map:m.map, d};
+  }
+  function renderTarget(){
+    const disp = cur.roDisp;
+    let html = '';
+    for(let i=0;i<disp.length;i++){
+      const ch = disp[i], ri = cur.map[i];
+      if(ri === -1) html += escapeHtml(ch);
+      else if(ri < pos) html += `<span class="done">${escapeHtml(ch)}</span>`;
+      else if(ri === pos) html += `<span class="curr pop">${escapeHtml(ch)}</span>`;
+      else html += escapeHtml(ch);
+    }
+    elJP.textContent = 'お題：' + cur.jp;
+    elRoma.innerHTML = html;
+    if(typedInput) typedInput.value = cur.roRaw.slice(0, pos);
+    const p = Math.floor((pos / cur.roRaw.length)*100);
+    progLbl.textContent = p + '%';
+    progBar.style.width = p + '%';
+    elHint.textContent = `難易度: ${cur.d.toUpperCase()} ／ 文字数: ${cur.roRaw.length}`;
+  }
+  function nextTarget(){
+    cur = pickWord();
+    pos = 0;
+    elMist.textContent = '';
+    renderTarget();
+  }
+
+  // ======= HUD =======
+  function updateHUD(full=true){
+    elMoney.textContent = fmt(money);
+    elProd.textContent = fmt(products);
+    const comboMul = (1 + combo*comboCoef());
+    comboLbl.textContent = 'x' + comboMul.toFixed(2);
+    comboBar.style.width = Math.min(100, combo/50*100) + '%';
+    elMult.textContent = 'x' + (unitMult).toFixed(2);
+    lastDropName.textContent = lastDrop;
+    equipNowName.textContent = equippedAura;
+    if(full){ renderOdds(); renderDex(); renderMissionUI(); renderCraftUI(); renderAchievements(); }
+  }
+
+  // ======= Collection persistence =======
+  function defaultCollection(){
+    const o={};
+    AURAS.forEach(a=>o[a.name]={count:0, unlocked:false});
+    // add rainbow frame placeholder
+    o[RAINBOW_KEY] = {count:0, unlocked:false};
+    return o;
+  }
+  function loadCollection(){
+    try{
+      const s = localStorage.getItem('NEON_AURA_DEX_V5');
+      if(s){
+        const o = JSON.parse(s);
+        AURAS.forEach(a=>{ if(!o[a.name]) o[a.name]={count:0, unlocked:false}; });
+        if(!o[RAINBOW_KEY]) o[RAINBOW_KEY] = {count:0, unlocked:false};
+        return o;
+      }
+    }catch(e){}
+    return defaultCollection();
+  }
+  function saveCollection(){
+    try{ localStorage.setItem('NEON_AURA_DEX_V5', JSON.stringify(coll)); }catch(e){}
+  }
+  function loadEquip(){
+    try{ return localStorage.getItem('NEON_AURA_EQUIP_V5') || 'NONE'; }catch(e){ return 'NONE'; }
+  }
+  function saveEquip(){
+    try{ localStorage.setItem('NEON_AURA_EQUIP_V5', equippedAura); }catch(e){}
+  }
+  function loadAuraCounts(){
+    try{
+      const s = localStorage.getItem('NEON_AURA_COUNTS_V1');
+      if(s) return JSON.parse(s);
+    }catch(e){}
+    return {RARE:0, LUCKY:0, EPIC:0, FIRE:0, ICE:0};
+  }
+  function saveAuraCounts(){
+    try{ localStorage.setItem('NEON_AURA_COUNTS_V1', JSON.stringify(auraCounts)); }catch(e){}
+  }
+  function loadUpgradesTotal(){
+    try{ const s = localStorage.getItem('NEON_UPGRADES_TOTAL_V1'); if(s) return parseInt(s)||0; }catch(e){}
+    return 0;
+  }
+  function saveUpgradesTotal(){ try{ localStorage.setItem('NEON_UPGRADES_TOTAL_V1', String(totalUpgrades)); }catch(e){} }
+
+  // ======= Missions (Story) persistence and logic =======
+  function loadStoryState(){
+    try{
+      const s = localStorage.getItem('NEON_STORY_V1');
+      if(s) return JSON.parse(s);
+    }catch(e){}
+    return {idx:0, progress:{}};
+  }
+  function saveStoryState(){
+    try{ localStorage.setItem('NEON_STORY_V1', JSON.stringify(storyState)); }catch(e){}
+  }
+  function currentMission(){ return STORY[storyState.idx] || STORY[STORY.length-1]; }
+  function missionProgressValue(m){
+    switch(m.type){
+      case 'combo_max':   return Math.min(maxCombo, m.need);
+      case 'words_total': return Math.min(totalClears, m.need);
+      case 'aura_count':  return Math.min(auraCounts[m.key]||0, m.need);
+      case 'upgrades':    return Math.min(totalUpgrades, m.need);
+      case 'money_total': return Math.min(totalMoneyEarned|0, m.need);
+      case 'aura_both':   {
+        const gotA = (auraCounts[m.keys[0]]||0) >= 1;
+        const gotB = (auraCounts[m.keys[1]]||0) >= 1;
+        // show "1/2" style by summing flags
+        return (gotA?1:0) + (gotB?1:0);
+      }
+      default: return 0;
+    }
+  }
+  function missionMaxValue(m){
+    if(m.type==='aura_both') return 2;
+    return m.need;
+  }
+  function renderMissionUI(){
+    const m = currentMission();
+    const val = missionProgressValue(m);
+    const max = missionMaxValue(m);
+    msDesc.textContent = `ミッション${m.id}: ${m.desc}`;
+    msProgText.textContent = `${fmt(val)} / ${fmt(max)}`;
+    msLevel.textContent = `${m.id} / 10`;
+    msReward.textContent = (m.id===10) ? `報酬: 🌈 RAINBOW FRAME` : `報酬: ${fmt(m.reward)}C`;
+    const pct = Math.floor((val/max)*100);
+    msBar.style.width = pct + '%';
+    msStatus.textContent = (val>=max) ? 'クリア！報酬付与！' : '進行中...';
+  }
+  function tryCompleteMission(){
+    const m = currentMission();
+    const val = missionProgressValue(m);
+    const max = missionMaxValue(m);
+    if(val < max) return;
+    // reward
+    if(m.id === 10){
+      // Unlock rainbow frame only once
+      if(!coll[RAINBOW_KEY].unlocked){
+        coll[RAINBOW_KEY].unlocked = true;
+        coll[RAINBOW_KEY].count = 1;
+        saveCollection();
+        rainbowUnlockFX();
+      }
+      unlockAchievement('legend_start');
+    }else{
+      money += m.reward;
+      missionsBox.classList.add('msFlash'); setTimeout(()=>missionsBox.classList.remove('msFlash'), 500);
+      const r = missionsBox.getBoundingClientRect();
+      coinFountain(m.reward, r.left + r.width/2, r.top - 10);
+      totalMoneyEarned += m.reward;
+    }
+    // move to next
+    if(storyState.idx < STORY.length-1){
+      storyState.idx++;
+      storyState.progress = {};
+      saveStoryState();
+    }
+    renderMissionUI();
+    updateHUD();
+  }
+
+  // ======= Visual Effects =======
+  function coinFountain(amount, cx, cy){
+    const count = 14 + (Math.random()*10|0);
+    for(let i=0;i<count;i++){
+      const ang = (Math.random()*360)|0;
+      coinPop('+'+fmt(amount), cx + (-10+Math.random()*20), cy + (-8+Math.random()*16), undefined, ang);
+    }
+  }
+  let activeCoins = 0;
+  const MAX_ACTIVE_COINS = 90;
+  function coinPop(txt, x, y, color='var(--gold)', rot=0){
+    if(activeCoins >= MAX_ACTIVE_COINS) return;
+    activeCoins++;
+    const c = document.createElement('div');
+    c.className = 'coin';
+    c.textContent = txt;
+    c.style.left = x + 'px'; c.style.top = y + 'px'; c.style.color = color;
+    c.style.transform = `translateZ(0) rotateZ(${rot}deg)`;
+    document.body.appendChild(c);
+    let vx = (-220 + Math.random()*440);
+    let vy = -380 - Math.random()*260;
+    let ay = 900;
+    let alpha = 1;
+    const startX = x, startY = y;
+    function step(t){
+      if(!step.t) step.t = t;
+      const dt = Math.min(0.05, (t - step.t)/1000); step.t = t;
+      vy += ay*dt;
+      const nx = (parseFloat(c.style.left)||startX) + vx*dt;
+      const ny = (parseFloat(c.style.top)||startY) + vy*dt;
+      c.style.left = nx + 'px'; c.style.top = ny + 'px';
+      alpha -= dt*0.9; c.style.opacity = alpha;
+      if(alpha > 0 && ny < innerHeight + 90) requestAnimationFrame(step);
+      else { c.remove(); activeCoins--; }
+    }
+    requestAnimationFrame(step);
+  }
+  function spawnTrail(char, x, y, color){
+    const s = document.createElement('div');
+    s.className = 'trail';
+    s.textContent = char.toUpperCase();
+    s.style.left = x + 'px'; s.style.top = y + 'px';
+    s.style.color = color;
+    document.body.appendChild(s);
+    s.addEventListener('animationend', ()=>s.remove());
+  }
+  function pushBurstParticles(x, y, count, speedMin=140, speedMax=360, colors=['#10e7ff','#00ffa6','#ff4dff','#ffd166','#5affff','#ff6ec7']){
+    for(let i=0;i<count;i++){
+      const a = Math.random()*Math.PI*2;
+      const sp = speedMin + Math.random()*(speedMax-speedMin);
+      particles.push({
+        x, y,
+        vx: Math.cos(a)*sp,
+        vy: Math.sin(a)*sp,
+        life: 1,
+        size: 2 + Math.random()*3,
+        color: colors[(Math.random()*colors.length)|0]
+      });
+    }
+  }
+  function slashBurst(power=1.5){
+    const colors=['#ff4d4d','#4db7ff','#32ff77','#ffd166','#ff5ac8','#eaf6ff'];
+    const x = innerWidth/2, y = innerHeight/2;
+    const n = Math.floor(420*power);
+    for(let i=0;i<n;i++){
+      const a = Math.random()*Math.PI*2;
+      const sp = 240 + Math.random()*980*power;
+      particlesTop.push({
+        x, y,
+        vx: Math.cos(a)*sp,
+        vy: Math.sin(a)*sp,
+        life: 0.6 + Math.random()*0.6,
+        size: 2,
+        color: colors[(Math.random()*colors.length)|0],
+        streak:true,
+        len: 20 + Math.random()*34
+      });
+    }
+  }
+  function burst(x, y, power=1){
+    const colors = ['#10e7ff','#00ffa6','#ff4dff','#ffd166','#5affff','#ff6ec7'];
+    const n = Math.max(20, Math.floor(200*power));
+    pushBurstParticles(x,y,n,140,360,colors);
+  }
+  function burstGold(power=1.8){
+    const x = innerWidth/2, y = innerHeight/2;
+    const colors = ['#ffd166','#ffe68a','#fff2c1','#ffcf33'];
+    const n = Math.floor(700*power);
+    for(let i=0;i<n;i++){
+      const a = Math.random()*Math.PI*2;
+      const sp = 180 + Math.random()*560*power;
+      particlesTop.push({
+        x: x + Math.cos(a)*20, y: y + Math.sin(a)*20,
+        vx: Math.cos(a)*sp,
+        vy: Math.sin(a)*sp,
+        life: 1.2 + Math.random()*0.8,
+        size: 1.5 + Math.random()*2.5,
+        color: colors[(Math.random()*colors.length)|0]
+      });
+    }
+  }
+  function snowStorm(){
+    const n = 280;
+    for(let i=0;i<n;i++){
+      const x = Math.random()*innerWidth;
+      const y = -20 - Math.random()*60;
+      particlesTop.push({
+        x, y,
+        vx: -20 + Math.random()*40,
+        vy: 40 + Math.random()*60,
+        life: 2 + Math.random()*1.5,
+        size: 1 + Math.random()*2,
+        color: '#eaf6ff'
+      });
+    }
+  }
+  function fireColumn(){
+    const x = innerWidth/2, y = innerHeight/2 + 60;
+    const n = 380;
+    for(let i=0;i<n;i++){
+      const a = (Math.random()*Math.PI - Math.PI/2);
+      const sp = 220 + Math.random()*560;
+      particlesTop.push({
+        x: x + Math.cos(a)*8, y: y + Math.sin(a)*8,
+        vx: Math.cos(a)*80 + (-20+Math.random()*40),
+        vy: -Math.abs(sp),
+        life: 0.7 + Math.random()*0.5,
+        size: 2 + Math.random()*2,
+        color: ['#ff3d3d','#ff7a3d','#ffd166'][Math.random()*3|0]
+      });
+    }
+  }
+  function iceSpikes(){
+    for(let i=0;i<14;i++){
+      const s = document.createElement('div');
+      s.className = 'iceSpike';
+      const side = Math.random()<0.5 ? 'left' : 'right';
+      const x = side==='left' ? (Math.random()*20) : (80 + Math.random()*20);
+      s.style.left = x + 'vw';
+      s.style.bottom = (-10 + Math.random()*5) + 'vh';
+      s.style.transform = `rotate(${side==='left' ? (5+Math.random()*20) : (-5-Math.random()*20)}deg)`;
+      document.body.appendChild(s);
+      setTimeout(()=>s.remove(), 600);
+    }
+  }
+  function luckyFountain(){
+    const n = 60;
+    for(let i=0;i<n;i++){
+      const s = document.createElement('div');
+      s.className = 'luckySym';
+      s.textContent = Math.random()<0.7 ? '7' : '♣';
+      s.style.left = (20 + Math.random()*60) + 'vw';
+      s.style.top = (60 + Math.random()*20) + 'vh';
+      document.body.appendChild(s);
+      s.addEventListener('animationend', ()=>s.remove());
+    }
+  }
+  function drawParticles(dt){
+    trimParticles();
+    if(!particles.length && !particlesTop.length) return;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for(let i=particles.length-1;i>=0;i--){
+      const p = particles[i];
+      p.vy += 520*dt;
+      p.x += p.vx*dt;
+      p.y += p.vy*dt;
+      p.life -= dt*0.8;
+      if(p.life <= 0 || p.y > innerHeight + 60){ particles.splice(i,1); continue; }
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    ctxTop.clearRect(0,0,canvasTop.width,canvasTop.height);
+    for(let i=particlesTop.length-1;i>=0;i--){
+      const p = particlesTop[i];
+      p.vy += 420*dt;
+      p.x += p.vx*dt;
+      p.y += p.vy*dt;
+      p.life -= dt*0.55;
+      if(p.life <= 0 || p.y > innerHeight + 80){ particlesTop.splice(i,1); continue; }
+      ctxTop.globalCompositeOperation = 'lighter';
+      ctxTop.globalAlpha = Math.max(0, p.life);
+      ctxTop.fillStyle = p.color;
+      if(p.streak){
+        const ang = Math.atan2(p.vy,p.vx);
+        ctxTop.save();
+        ctxTop.translate(p.x,p.y);
+        ctxTop.rotate(ang);
+        ctxTop.fillRect(0, -1, p.len, 2);
+        ctxTop.restore();
+      }else{
+        ctxTop.beginPath();
+        ctxTop.arc(p.x, p.y, p.size, 0, Math.PI*2);
+        ctxTop.fill();
+      }
+    }
+    ctxTop.globalAlpha = 1;
+    ctxTop.globalCompositeOperation = 'source-over';
+  }
+  function screenShake(){ center.classList.remove('shaking'); void center.offsetWidth; center.classList.add('shaking'); }
+  function screenShakeXL(){ center.classList.remove('shakeXL'); void center.offsetWidth; center.classList.add('shakeXL'); }
+  function flashOnce(){ flash.classList.remove('bang'); void flash.offsetWidth; flash.classList.add('bang'); }
+  function missBlink(){ missFlash.classList.remove('hit'); void missFlash.offsetWidth; missFlash.classList.add('hit'); }
+  function showSweep(colorClass='sweepGreen', textEl){
+    const s = document.createElement('div');
+    s.className = colorClass;
+    document.body.appendChild(s);
+    if(textEl) document.body.appendChild(textEl);
+    setTimeout(()=>{ s.remove(); if(textEl) textEl.remove(); }, 620);
+  }
+  function makeTextEl(txt, cls){ const t=document.createElement('div'); t.className=cls; t.textContent=txt; return t; }
+  function showRing(color='rgba(16,231,255,.95)'){
+    const r = document.createElement('div');
+    r.className = 'ringBurst';
+    r.style.borderColor = color;
+    r.style.boxShadow = `0 0 55px ${color}, inset 0 0 38px ${color}`;
+    document.body.appendChild(r);
+    r.addEventListener('animationend', ()=>r.remove());
+  }
+  function showEpicLightning(){
+    const w = document.createElement('div');
+    w.className = 'epicWrap';
+    for(let i=0;i<9;i++){
+      const b = document.createElement('div');
+      b.className = 'bolt';
+      b.style.left = (10 + Math.random()*80) + 'vw';
+      b.style.top = (-10 + Math.random()*6) + 'vh';
+      b.style.transform = 'rotate(' + (-40 + Math.random()*80) + 'deg)';
+      b.style.animationDuration = (0.28 + Math.random()*0.22) + 's';
+      w.appendChild(b);
+    }
+    document.body.appendChild(w);
+    const pf = document.createElement('div'); pf.className='purpleFlash'; document.body.appendChild(pf);
+    setTimeout(()=>{w.remove(); pf.remove();}, 760);
+  }
+  function showCutin(text, gradientCss){
+    const black = document.createElement('div');
+    black.className = 'legendaryBlack';
+    document.body.appendChild(black);
+    setTimeout(()=>{
+      const c = document.createElement('div');
+      c.className = 'cutin';
+      const t = document.createElement('div');
+      t.className = 'cutTxt';
+      t.textContent = text;
+      t.style.background = gradientCss;
+      c.appendChild(t);
+      document.body.appendChild(c);
+      strobe.classList.add('flash');
+      screenShakeXL();
+      setTimeout(()=>{
+        c.remove();
+        strobe.classList.remove('flash');
+        black.remove();
+      }, 3200);
+    }, 180);
+  }
+  function showGod(){
+    const wrap = document.createElement('div');
+    wrap.className = 'raysWrap';
+    const N = 46;
+    for(let i=0;i<N;i++){
+      const ray = document.createElement('div');
+      ray.className = 'ray';
+      const deg = (i/N)*180 - 90;
+      ray.style.transform = `translateX(-50%) rotate(${deg}deg)`;
+      ray.style.animationDelay = (i*0.01)+'s';
+      wrap.appendChild(ray);
+    }
+    for(let b=0;b<3;b++){
+      const beam = document.createElement('div');
+      beam.className = 'goldBeam';
+      beam.style.left = (45 + b*5) + '%';
+      document.body.appendChild(beam);
+      setTimeout(()=>beam.remove(), 1100);
+    }
+    document.body.appendChild(wrap);
+    setTimeout(()=>wrap.remove(), 1300);
+  }
+  function showDarkness(){
+    const veil = document.createElement('div'); veil.className='darkVeil';
+    const smoke = document.createElement('div'); smoke.className='smoke';
+    const txt = document.createElement('div'); txt.className='evilText'; txt.textContent='DARKNESS';
+    document.body.appendChild(veil); document.body.appendChild(smoke); document.body.appendChild(txt);
+    elRoma.classList.add('sucked'); elJP.classList.add('sucked');
+    setTimeout(()=>{ veil.remove(); smoke.remove(); txt.remove(); elRoma.classList.remove('sucked'); elJP.classList.remove('sucked'); }, 2600);
+  }
+  function showElement(){
+    megaStrobe.classList.add('active');
+    const g = document.createElement('div');
+    g.className = 'afterImg';
+    g.style.left = elRoma.offsetLeft + 'px';
+    g.style.top = elRoma.offsetTop + 'px';
+    g.style.width = elRoma.offsetWidth + 'px';
+    g.style.height = elRoma.offsetHeight + 'px';
+    g.textContent = elRoma.textContent;
+    elRoma.parentElement.appendChild(g);
+    setTimeout(()=>g.remove(), 600);
+    slashBurst(2.2);
+    screenShakeXL();
+    setTimeout(()=>megaStrobe.classList.remove('active'), 1800);
+  }
+  function showFire(){ fireColumn(); }
+  function showSnow(){ snowStorm(); }
+  function showIce(){ iceSpikes(); }
+  function showLucky(){ luckyFountain(); }
+
+  // ===== New auras reveal FX =====
+  function showGlitch(){
+    playBox.classList.add('glitchActive');
+    center.classList.add('glitchActive');
+    showCutin('GLITCH', 'linear-gradient(180deg,#fff,#ff0055,#ff00aa)');
+    setTimeout(()=>{ playBox.classList.remove('glitchActive'); center.classList.remove('glitchActive'); }, 900);
+  }
+  function showTimeLeap(){
+    const ring1 = document.createElement('div');
+    ring1.className = 'timeLeapRing';
+    document.body.appendChild(ring1);
+    showCutin('TIME LEAP', 'linear-gradient(180deg,#fff,#00ffaa,#00baff)');
+    setTimeout(()=>ring1.remove(), 2000);
+  }
+  function showCatNight(){
+    showCutin('CAT NIGHT', 'linear-gradient(180deg,#fff,#ffaa00,#ff7a00)');
+  }
+  function showSupernova(){
+    pushBurstParticles(innerWidth/2, innerHeight*0.3, 60, 220, 620, ['#ffaaee','#a800ff','#ff5ac8','#ffd642','#00ffa6','#3aa0ff']);
+    showCutin('SUPERNOVA', 'linear-gradient(180deg,#fff,#ffaaee,#a800ff)');
+  }
+  function showUltimate(){
+    megaStrobe.classList.add('active');
+    strobe.classList.add('flash');
+    showCutin('ULTIMATE', 'linear-gradient(180deg,#fff,#ff0000,#990000)');
+    setTimeout(()=>{ megaStrobe.classList.remove('active'); strobe.classList.remove('flash'); }, 1800);
+  }
+  function showBlackHole(){
+    const v = document.createElement('div'); v.className = 'blackHoleVoid';
+    document.body.appendChild(v);
+    showCutin('BLACK HOLE', 'linear-gradient(180deg,#fff,#a800ff,#000)');
+    setTimeout(()=>v.remove(), 1900);
+  }
+  function showProTyper(){
+    const w = document.createElement('div'); w.className = 'protyperWhiteout';
+    document.body.appendChild(w);
+    const prevGain = (AudioSys.master ? AudioSys.master.gain.value : 0.95);
+    try{
+      if(AudioSys.master && AudioSys.ctx){
+        AudioSys.master.gain.setValueAtTime(prevGain, AudioSys.ctx.currentTime);
+        AudioSys.master.gain.linearRampToValueAtTime(0.0001, AudioSys.ctx.currentTime + 0.05);
+      }
+    }catch(e){}
+    setTimeout(()=>{
+      const t = document.createElement('div'); t.className = 'protyperTxt'; t.textContent = 'PRO TYPER';
+      document.body.appendChild(t);
+      try{
+        if(AudioSys.master && AudioSys.ctx){
+          AudioSys.master.gain.linearRampToValueAtTime(prevGain, AudioSys.ctx.currentTime + 0.1);
+        }
+      }catch(e){}
+      screenShakeXL(); flashOnce();
+      setTimeout(()=>{ t.remove(); }, 3600);
+    }, 1050);
+    setTimeout(()=>w.remove(), 1450);
+  }
+
+  // ===== Forced 100% confirmation cut-in for any aura with probability 1/5000 or rarer =====
+  function ultraCutinThemeColor(auraName){
+    switch(auraName){
+      case 'ZOMBIE': return '#39ff14';
+      case 'BERSERK': return '#ff0000';
+      case 'OVERLORD': return '#ff2b2b';
+      case 'GOD': return '#ffd642';
+      case 'DARKNESS': return '#b366ff';
+      case 'ELEMENT': return '#32ff77';
+      case 'SUPERNOVA': return '#ffaaee';
+      case 'ULTIMATE': return '#ff0000';
+      case 'CELESTIAL': return '#eaf6ff';
+      case 'OBSIDIAN': return '#b98cff';
+      case 'PRO TYPER': return '#ffffff';
+      case 'LIGHTNING': return '#ffff00';
+      case 'COMPRESSED DIRT': return '#8b6f47';
+      case 'DEMONIC LUMP': return '#ffffff';
+      default: return '#ffffff';
+    }
+  }
+  function triggerUltraCutin(aura){
+    const themeColor = ultraCutinThemeColor(aura.name);
+    cutinTextEl.textContent = aura.name;
+    cutinTextEl.style.color = themeColor;
+    cutinTextEl.classList.remove('spin3d'); void cutinTextEl.offsetWidth; cutinTextEl.classList.add('spin3d');
+    cutinSubEl.classList.remove('spin3d'); void cutinSubEl.offsetWidth; cutinSubEl.classList.add('spin3d');
+
+    cutinOverlay.classList.add('show');
+    cutinOverlay.classList.remove('strobing'); void cutinOverlay.offsetWidth; cutinOverlay.classList.add('strobing');
+
+    // Big violent earthquake shake
+    screenShakeTime = 40;
+    screenShakeXL();
+    flashOnce();
+
+    // Piercing siren + explosive sub-bass thunder SE
+    try{ AudioSys.ultraConfirm(); }catch(e){}
+
+    // Realtime achievement unlock: 大吉
+    unlockAchievement('daikichi');
+
+    setTimeout(()=>{
+      cutinOverlay.classList.remove('show');
+      cutinOverlay.classList.remove('strobing');
+      cutinTextEl.classList.remove('spin3d');
+      cutinSubEl.classList.remove('spin3d');
+    }, 2200);
+  }
+
+  function rainbowUnlockFX(){
+    // border spin overlay + big text + massive particles
+    const spin = document.createElement('div'); spin.className='rbSpinBorder'; document.body.appendChild(spin);
+    const cut = document.createElement('div'); cut.className='rbUnlocked';
+    const txt = document.createElement('div'); txt.className='rbTxt';
+    txt.innerHTML = '🌈 RAINBOW FRAME UNLOCKED 🌈';
+    cut.appendChild(txt); document.body.appendChild(cut);
+    // fanfare
+    AudioSys.rainbowFanfare();
+    // particles
+    const cols=['#ff004c','#ff8a00','#ffee00','#00ff6a','#00baff','#a96cff'];
+    const x = innerWidth/2, y = innerHeight/2;
+    for(let k=0;k<6;k++){
+      const power=2.4;
+      const n = Math.floor(520*power);
+      for(let i=0;i<n;i++){
+        const a = Math.random()*Math.PI*2;
+        const sp = 180 + Math.random()*720*power;
+        particlesTop.push({
+          x: x + Math.cos(a)*20, y: y + Math.sin(a)*20,
+          vx: Math.cos(a)*sp, vy: Math.sin(a)*sp,
+          life: 1.0 + Math.random()*0.9,
+          size: 1.8 + Math.random()*2.2,
+          color: cols[(k+i)%cols.length]
+        });
+      }
+    }
+    // enhance equip FX to rainbow if equipped
+    equipFx.classList.add('fx-rainbow');
+    setTimeout(()=>{ cut.remove(); spin.remove(); }, 3200);
+  }
+
+  // ======= Probabilities (with Luck multiplier) =======
+  function itemLuckBonusPct(){
+    let mult = 1.0;
+    if(craftedItems.elementGantlet) mult *= 1.05;
+    if(equippedWeapon !== 'NONE') mult *= WEAPON_BONUS[equippedWeapon] || 1.0;
+    return mult - 1.0;
+  }
+  let lightningPotionUntil = 0;
+  function potionLuckMult(){ return performance.now() < lightningPotionUntil ? 2.0 : 1.0; }
+  function totalLuck(){
+    const mult = boosterLuck() * equipLuckMult(equippedAura) * (1 + itemLuckBonusPct()) * potionLuckMult();
+    return Math.max(1.0, mult);
+  }
+  function boostedDenom(aura){
+    const isCommon = (aura.name==='COMMON');
+    const eff = isCommon ? aura.denom : (aura.denom / totalLuck());
+    return Math.max(1.001, eff);
+  }
+  function rollAura(){
+    // Hierarchical rarest->common. Craft-only entries are explicitly excluded.
+    const rollable = AURAS.filter(a=>a.rollable !== false && a.name!=='COMMON' && a.name!=='UNCOMMON' && a.name!=='DIRT')
+      .sort((a,b)=>b.denom-a.denom);
+    for(const a of rollable){
+      if(a.denom<=0) continue;
+      const d = boostedDenom(a);
+      if(Math.random() < 1/d) return a;
+    }
+    const unc = AURAS.find(a=>a.name==='UNCOMMON');
+    if(unc && Math.random() < 1/boostedDenom(unc)) return unc;
+    const dirt = AURAS.find(a=>a.name==='DIRT');
+    if(dirt && Math.random() < 1/boostedDenom(dirt)) return dirt;
+    return AURAS.find(a=>a.name==='COMMON');
+  }
+
+  // ======= Input handling (instant start) =======
+  window.addEventListener('keydown', (e)=>{
+    AudioSys.ensure();
+    if(e.key.length===1){
+      const k = e.key.toLowerCase();
+      if(!/[a-z]/.test(k)){ e.preventDefault(); return; }
+      const want = cur.roRaw[pos];
+      if(k === want){
+        onCorrect(k);
+      }else{
+        onMiss();
+      }
+      e.preventDefault();
+    }else if(e.key === 'Backspace'){ e.preventDefault(); }
+  }, {passive:false});
+
+  function addMoney(n){
+    money += n;
+    totalMoneyEarned += n;
+    hudDirty = true;
+  }
+
+  function onCorrect(k){
+    AudioSys.type();
+    if(equippedAura==='FIRE'){ AudioSys.crackle(); }
+    const curr = elRoma.querySelector('.curr');
+    let rx = innerWidth/2, ry = innerHeight/2;
+    if(curr){
+      const r = curr.getBoundingClientRect();
+      rx = r.left + r.width/2;
+      ry = r.top + r.height/2;
+    }
+    // per-key sparks
+    spawnTrail(k, rx, ry, ['#10e7ff','#00ffa6','#ff4dff'][Math.floor(Math.random()*3)]);
+    pushBurstParticles(rx, ry, 26, 160, 420, ['#10e7ff','#00ffa6','#ff4dff','#ffd166']);
+    pushBurstParticles(innerWidth/2, innerHeight/2, 22, 140, 320, ['#10e7ff','#00ffa6','#ff4dff','#ffd166']);
+    if(equippedAura==='FIRE'){
+      for(let i=0;i<24;i++){
+        particlesTop.push({
+          x: rx, y: ry,
+          vx: (-60+Math.random()*120),
+          vy: -220 - Math.random()*180,
+          life: 0.4 + Math.random()*0.3,
+          size: 1.5 + Math.random()*1.5,
+          color: ['#ff3d3d','#ff7a3d'][Math.random()*2|0]
+        });
+      }
+    }
+    screenShake();
+
+    // combo
+    combo++;
+    if(combo > maxCombo) maxCombo = combo;
+    if(combo >= 20){ ring.classList.add('fast'); } else { ring.classList.remove('fast'); }
+
+    // gain per char
+    const comboMul = (1 + combo*comboCoef());
+    const gain = basePerChar * unitMult * comboMul;
+    addMoney(gain);
+    totalCorrect++;
+    coinPop('+'+fmt(Math.max(1, Math.floor(gain))), rx-15+Math.random()*30, ry-10, '#9ddc5f', (Math.random()*60-30));
+
+    if(totalCorrect % productChars === 0){
+      products++;
+      coinPop('+PROD', rx-30+Math.random()*60, ry-20, '#00ffb7', (Math.random()*60-30));
+    }
+
+    // missions progress (combo and typing)
+    tryCompleteMission();
+
+    // advance
+    pos++;
+    if(pos >= cur.roRaw.length){
+      const baseClear = Math.max(3, Math.floor(cur.roRaw.length * 5));
+      const aura = rollAura();
+      lastDrop = aura.name;
+      coll[aura.name].unlocked = true;
+      coll[aura.name].count = (coll[aura.name].count||0) + 1;
+      saveCollection();
+      // count for missions
+      if(auraCounts[aura.name] !== undefined){ auraCounts[aura.name]++; saveAuraCounts(); }
+
+      // achievement: self-drawn ultra rare (probability 1/10000 or rarer)
+      if(aura.denom >= 10000){ unlockAchievement('daikichi'); }
+
+      // Effects + audio per aura
+      rngMultLbl.textContent = 'x' + aura.mult.toFixed(2);
+      rngBar.style.width = Math.min(100, Math.log2(aura.mult)/Math.log2(400) * 100) + '%';
+
+      if(aura.name==='LIGHTNING'){
+        triggerUltraCutin(aura);
+      }else if(aura.name==='COMMON'){
+        const t = makeTextEl('COMMON', 'commonText');
+        showSweep('sweepGreen', t); AudioSys.auraCommon();
+      }else if(aura.name==='UNCOMMON'){
+        const t = makeTextEl('UNCOMMON', 'uncommonText');
+        showSweep('sweepGreen', t); AudioSys.auraUncommon();
+      }else if(aura.name==='RARE'){
+        showRing('rgba(16,231,255,.95)'); flashOnce(); AudioSys.auraRare(); burst(innerWidth/2, innerHeight*0.26, 1.2);
+      }else if(aura.name==='EPIC'){
+        showEpicLightning(); flashOnce(); AudioSys.auraEpic(); burst(innerWidth/2, innerHeight*0.26, 1.6);
+      }else if(aura.name==='LEGENDARY'){
+        showRing('rgba(255,159,66,.95)'); AudioSys.auraLegendary(); burst(innerWidth/2, innerHeight*0.26, 2.2);
+        flashOnce(); screenShakeXL();
+      }else if(aura.name==='MYTHICAL'){
+        showCutin('MYTHICAL', 'linear-gradient(180deg,#fff,#ffb3e6,#ff5ac8)'); AudioSys.auraMythical(); burstGold(2.0);
+      }else if(aura.name==='CELESTIAL'){
+        showCutin('CELESTIAL', 'linear-gradient(180deg,#ffffff,#eaf6ff,#b7e3ff)'); AudioSys.auraCelestial(); burstGold(2.4);
+      }else if(aura.name==='GOD'){
+        showGod(); AudioSys.auraGod(); burstGold(2.8); screenShakeXL(); flashOnce();
+      }else if(aura.name==='DARKNESS'){
+        showDarkness(); AudioSys.auraDarkness(); screenShakeXL();
+      }else if(aura.name==='ELEMENT'){
+        showElement(); AudioSys.auraElement();
+      }else if(aura.name==='FIRE'){
+        showFire(); AudioSys.auraFire();
+      }else if(aura.name==='SNOW'){
+        showSnow(); AudioSys.auraSnow();
+      }else if(aura.name==='ICE'){
+        showIce(); AudioSys.auraIce();
+      }else if(aura.name==='LUCKY'){
+        showLucky(); AudioSys.auraLucky();
+      }else if(aura.name==='GLITCH'){
+        showGlitch(); AudioSys.auraGlitch();
+      }else if(aura.name==='TIME LEAP'){
+        showTimeLeap(); AudioSys.auraTimeLeap();
+      }else if(aura.name==='CAT NIGHT'){
+        showCatNight(); AudioSys.auraCatNight();
+      }else if(aura.name==='SUPERNOVA'){
+        showSupernova(); AudioSys.auraSupernova(); burstGold(2.6);
+      }else if(aura.name==='ULTIMATE'){
+        showUltimate(); AudioSys.auraUltimate(); screenShakeXL();
+      }else if(aura.name==='BLACK HOLE'){
+        showBlackHole(); AudioSys.auraBlackHole(); screenShakeXL();
+      }else if(aura.name==='PRO TYPER'){
+        showProTyper(); AudioSys.auraProTyper();
+      }else if(aura.name==='ZOMBIE'){
+        showCutin('ZOMBIE', 'linear-gradient(180deg,#eaffea,#39ff14,#0a4d05)'); AudioSys.auraZombie(); screenShakeXL();
+      }else if(aura.name==='BERSERK'){
+        showCutin('BERSERK', 'linear-gradient(180deg,#fff,#ff0000,#5a0000)'); AudioSys.auraBerserk(); screenShakeXL(); flashOnce();
+      }else if(aura.name==='OVERLORD'){
+        showCutin('OVERLORD', 'linear-gradient(135deg,#800000,#000000,#800000)'); AudioSys.auraOverlord(); screenShakeXL(); flashOnce();
+      }else if(aura.name==='GRASS'){
+        showSweep('sweepGreen', makeTextEl('GRASS','commonText'));
+      }else if(aura.name==='BLOOD'){
+        showCutin('BLOOD','linear-gradient(180deg,#fff,#8a0000,#200000)'); AudioSys.auraBerserk(); screenShakeXL(); flashOnce();
+      }else if(aura.name==='HUMAN'){
+        const v=document.createElement('div'); v.style.cssText='position:fixed;inset:0;z-index:10020;background:#fff;animation:protyperFlashSeq 1.8s ease-out forwards;pointer-events:none'; document.body.appendChild(v); try{AudioSys.ultraConfirm();}catch(e){} screenShakeXL(); setTimeout(()=>v.remove(),1900);
+      }
+
+      // ===== 1/5000+ ultra rare: forced 100% dramatic confirmation cut-in =====
+      if(aura.denom >= 5000){
+        triggerUltraCutin(aura);
+      }
+
+      // Grant clear + aura multiplier
+      const clearGain = Math.floor(baseClear * unitMult * aura.mult);
+      addMoney(clearGain);
+      coinFountain(clearGain, innerWidth/2, innerHeight*0.28);
+
+      // word cleared
+      totalClears++;
+      if(totalClears >= 1000) unlockAchievement('superhuman');
+      if(totalClears >= 2000) unlockAchievement('muscle');
+      tryCompleteMission();
+
+      clears++;
+      nextTarget();
+    }else{
+      renderTarget();
+    }
+    updateHUD();
+  }
+
+  function onMiss(){
+    const now = performance.now()/1000;
+    const canShield = droneLv>0 && (now - lastShieldTime) >= droneShieldCooldown;
+    if(canShield){
+      lastShieldTime = now;
+      AudioSys.droneShield();
+      droneStatus.textContent = 'DRONE: SHIELD!';
+      flashOnce();
+      setTimeout(()=>droneStatus.textContent = 'DRONE: Standby', 800);
+      return;
+    }
+    AudioSys.miss();
+    missBlink();
+    combo = 0;
+    ring.classList.remove('fast');
+    elMist.textContent = 'ミス！コンボリセット';
+    elRoma.animate([{transform:'translateX(0)'},{transform:'translateX(-10px)'},{transform:'translateX(10px)'},{transform:'translateX(0)'}],{duration:160});
+    flashOnce();
+    updateHUD();
+  }
+
+  // ======= Shop (5 upgrades) =======
+  const U = {
+    u1:{lv:0, base:100,  growth:1.85},  // keyboard oil
+    u2:{lv:0, base:150,  growth:1.9},   // motherboard
+    u3:{lv:0, base:250,  growth:1.95},  // rng booster (Luck)
+    u4:{lv:0, base:220,  growth:1.9},   // combo stabilizer
+    u5:{lv:0, base:300,  growth:2.0}    // drone
+  };
+  function nextCost(u){ return Math.floor(u.base * Math.pow(u.growth, Math.max(0,u.lv))); }
+  function updateShop(){
+    lv1.textContent = 'Lv.'+U.u1.lv;
+    lv2.textContent = 'Lv.'+U.u2.lv;
+    lv3.textContent = 'Lv.'+U.u3.lv;
+    lv4.textContent = 'Lv.'+U.u4.lv;
+    lv5.textContent = 'Lv.'+U.u5.lv;
+    buy1.textContent = '購入 ' + fmt(nextCost(U.u1)) + 'C';
+    buy2.textContent = '購入 ' + fmt(nextCost(U.u2)) + 'C';
+    buy3.textContent = '購入 ' + fmt(nextCost(U.u3)) + 'C';
+    buy4.textContent = '購入 ' + fmt(nextCost(U.u4)) + 'C';
+    buy5.textContent = '購入 ' + fmt(nextCost(U.u5)) + 'C';
+  }
+  function pulseShop(){
+    const sh = document.getElementById('shop');
+    sh.animate([{transform:'scale(1)'},{transform:'scale(1.02)'},{transform:'scale(1)'}],{duration:220});
+  }
+  function tryBuy(idx){
+    const key = 'u'+idx;
+    const u = U[key];
+    const cost = nextCost(u);
+    if(money >= cost){
+      money -= cost;
+      totalMoneyEarned += 0; // no change, but keep line for clarity
+      u.lv++;
+      totalUpgrades++; saveUpgradesTotal();
+      if(idx===1){ unitMult *= 1.20; }
+      if(idx===2){ autoMoneyRate += 2; }
+      if(idx===3){ rngBoostLv = u.lv; } // Luck倍率は常に 1 + 0.25*Lv
+      if(idx===4){ comboCoefExtra += 0.004; }
+      if(idx===5){
+        droneLv = u.lv;
+        droneShieldCooldown = Math.max(4, 12 - 1.0*droneLv);
+        droneDropInterval = Math.max(7, 18 - 1.4*droneLv);
+      }
+      updateShop(); updateHUD();
+      AudioSys.levelUp();
+      pulseShop(); flashOnce();
+      pushBurstParticles(innerWidth-160, 120, 160, 180, 520, ['#00ffa6','#10e7ff','#ff6ec7','#ffd166']);
+      tryCompleteMission();
+    }else{
+      document.getElementById('shop').animate([{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:160});
+    }
+  }
+  buy1.addEventListener('click', ()=>{ AudioSys.ensure(); tryBuy(1); });
+  buy2.addEventListener('click', ()=>{ AudioSys.ensure(); tryBuy(2); });
+  buy3.addEventListener('click', ()=>{ AudioSys.ensure(); tryBuy(3); });
+  buy4.addEventListener('click', ()=>{ AudioSys.ensure(); tryBuy(4); });
+  buy5.addEventListener('click', ()=>{ AudioSys.ensure(); tryBuy(5); });
+
+  // ======= Craft system (equipment + gamble) =======
+  function matCount(name){
+    try{ return (coll[name] && coll[name].count) || 0; }catch(e){ return 0; }
+  }
+  function consumeMat(name, n){
+    try{
+      if(!coll[name]) coll[name] = {count:0, unlocked:false};
+      coll[name].count = Math.max(0, (coll[name].count||0) - n);
+    }catch(e){}
+  }
+  function craftShakeEl(id){
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.classList.remove('craftShake'); void el.offsetWidth; el.classList.add('craftShake');
+  }
+  function craftFlashPanel(){
+    const el = document.getElementById('craftPanel');
+    if(!el) return;
+    el.classList.remove('craftFlash'); void el.offsetWidth; el.classList.add('craftFlash');
+  }
+  function craftPopupText(txt, color){
+    const cp = document.getElementById('craftPanel');
+    if(!cp) return;
+    const r = cp.getBoundingClientRect();
+    const el = document.createElement('div');
+    el.className = 'commonText';
+    el.style.color = color || '#fff';
+    el.style.left = (r.left + r.width/2) + 'px';
+    el.textContent = txt;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 700);
+  }
+
+  function craftElementGantlet(){
+    AudioSys.ensure();
+    if(craftedItems.elementGantlet){ return; }
+    if(matCount('EPIC') >= 1 && matCount('LEGENDARY') >= 1){
+      consumeMat('EPIC', 1); consumeMat('LEGENDARY', 1);
+      saveCollection();
+      craftedItems.elementGantlet = true;
+      saveCraftedItems();
+      unlockAchievement('thanos');
+      AudioSys.craftSuccess();
+      craftFlashPanel();
+      craftPopupText('ELEMENT GANTLET 完成！', '#32ff77');
+      renderCraftUI(); renderDex(); renderOdds(); updateHUD();
+    }else{
+      AudioSys.craftFail();
+      craftShakeEl('craftGantletBtn');
+    }
+  }
+  function craftFlameSword(){
+    AudioSys.ensure();
+    if(craftedItems.flameSword){ return; }
+    if(matCount('CRYSTAL') >= 1 && matCount('FIRE') >= 1){
+      consumeMat('CRYSTAL', 1); consumeMat('FIRE', 1);
+      saveCollection();
+      craftedItems.flameSword = true;
+      saveCraftedItems();
+      unlockAchievement('burnedout');
+      AudioSys.craftSuccess();
+      craftFlashPanel();
+      craftPopupText('FLAME SWORD 完成！', '#ff3d3d');
+      renderCraftUI(); renderDex(); renderOdds(); updateHUD();
+    }else{
+      AudioSys.craftFail();
+      craftShakeEl('craftFlameBtn');
+    }
+  }
+  function craftBlizzardSword(){
+    AudioSys.ensure();
+    if(craftedItems.blizzardSword){ return; }
+    if(matCount('CRYSTAL') >= 1 && matCount('ICE') >= 1){
+      consumeMat('CRYSTAL', 1); consumeMat('ICE', 1);
+      saveCollection();
+      craftedItems.blizzardSword = true;
+      saveCraftedItems();
+      unlockAchievement('freezer');
+      AudioSys.craftSuccess();
+      craftFlashPanel();
+      craftPopupText('BLIZZARD SWORD 完成！', '#8fe3ff');
+      renderCraftUI(); renderDex(); renderOdds(); updateHUD();
+    }else{
+      AudioSys.craftFail();
+      craftShakeEl('craftBlizzardBtn');
+    }
+  }
+  function craftCompressedDirt(){
+    AudioSys.ensure();
+    if(craftedItems.compressedDirt) return;
+    if(matCount('DIRT') >= 300){
+      consumeMat('DIRT',300);
+      coll['COMPRESSED DIRT'].unlocked = true;
+      coll['COMPRESSED DIRT'].count = (coll['COMPRESSED DIRT'].count||0) + 1;
+      craftedItems.compressedDirt = true;
+      saveCollection(); saveCraftedItems();
+      AudioSys.craftSuccess();
+      craftFlashPanel(); craftPopupText('COMPRESSED DIRT 完成！','#8b6f47');
+      screenShakeXL(); flashOnce(); triggerUltraCutin(AURAS[AURA_INDEX['COMPRESSED DIRT']]);
+      renderCraftUI(); renderDex(); renderOdds(); updateHUD();
+    }else{ AudioSys.craftFail(); craftShakeEl('craftCompressedDirtBtn'); }
+  }
+  function craftDemonicLump(){
+    AudioSys.ensure();
+    if(craftedItems.demonicLump) return;
+    if(matCount('COMPRESSED DIRT') >= 3){
+      consumeMat('COMPRESSED DIRT',3);
+      coll['DEMONIC LUMP'].unlocked = true;
+      coll['DEMONIC LUMP'].count = (coll['DEMONIC LUMP'].count||0) + 1;
+      craftedItems.demonicLump = true;
+      saveCollection(); saveCraftedItems();
+      AudioSys.craftSuccess();
+      const v=document.createElement('div'); v.style.cssText='position:fixed;inset:0;z-index:10020;background:#fff;animation:fadeOut .9s ease forwards;pointer-events:none'; document.body.appendChild(v);
+      screenShakeXL(); screenShakeTime=65;
+      try{ AudioSys.ultraConfirm(); }catch(e){}
+      craftPopupText('DEMONIC LUMP 完成！','#fff');
+      setTimeout(()=>v.remove(),950);
+      renderCraftUI(); renderDex(); renderOdds(); updateHUD();
+    }else{ AudioSys.craftFail(); craftShakeEl('craftDemonicLumpBtn'); }
+  }
+
+  function craftSimpleSword(id,name,req,color,achievementId){
+    AudioSys.ensure();
+    if(craftedItems[id]) return;
+    if(req.every(([n,c])=>matCount(n)>=c)){
+      req.forEach(([n,c])=>consumeMat(n,c));
+      craftedItems[id]=true; saveCollection(); saveCraftedItems();
+      if(achievementId) unlockAchievement(achievementId);
+      AudioSys.craftSuccess(); craftFlashPanel(); craftPopupText(name+' 完成！',color);
+      renderCraftUI(); renderDex(); renderOdds(); updateHUD();
+    }else{ AudioSys.craftFail(); craftShakeEl(id==='stoneSword'?'craftStoneSwordBtn':id==='woodSword'?'craftWoodSwordBtn':'craftDiamondSwordBtn'); }
+  }
+  function craftStoneSword(){ craftSimpleSword('stoneSword','STONE SWORD',[['THE SWORD',1],['STONE',1]],'#9c9c9c',null); }
+  function craftWoodSword(){ craftSimpleSword('woodSword','WOOD SWORD',[['THE SWORD',1],['WOOD',1]],'#8b4513',null); }
+  function craftDiamondSword(){ craftSimpleSword('diamondSword','DIAMOND SWORD',[['THE SWORD',1],['DIAMOND',1]],'#b0e0e6',null); }
+
+  function craftBlackHoleEvolution(){
+    AudioSys.ensure();
+    if(matCount('DARKNESS') >= 3){
+      consumeMat('DARKNESS', 3);
+      coll['BLACK HOLE'].unlocked = true;
+      coll['BLACK HOLE'].count = (coll['BLACK HOLE'].count||0) + 1;
+      saveCollection();
+      blackHoleEvolutionFX();
+      renderCraftUI(); renderDex(); renderOdds(); updateHUD();
+    }else{
+      AudioSys.craftFail();
+      craftShakeEl('craftBlackHoleBtn');
+    }
+  }
+  function gambleObsidian(){
+    AudioSys.ensure();
+    if(matCount('STONE') >= 1 && matCount('BREAK') >= 1){
+      consumeMat('STONE', 1); consumeMat('BREAK', 1);
+      saveCollection();
+      const success = Math.random() < 0.10; // 10%大当り
+      if(success){
+        coll['OBSIDIAN'].unlocked = true;
+        coll['OBSIDIAN'].count = (coll['OBSIDIAN'].count||0) + 1;
+        saveCollection();
+        unlockAchievement('gambler');
+        AudioSys.craftSuccess();
+        craftFlashPanel();
+        craftPopupText('大当り！OBSIDIAN 獲得！', '#7b2fff');
+        triggerUltraCutin(AURAS[AURA_INDEX['OBSIDIAN']]);
+      }else{
+        addMoney(500);
+        AudioSys.craftFail();
+        craftPopupText('合成失敗…ジャンク素材 +500C', '#ff8080');
+      }
+      renderCraftUI(); renderDex(); renderOdds(); updateHUD();
+    }else{
+      AudioSys.craftFail();
+      craftShakeEl('craftObsidianBtn');
+    }
+  }
+
+  function blackHoleEvolutionFX(){
+    const v = document.createElement('div'); v.className = 'blackHoleVoid';
+    document.body.appendChild(v);
+    const txt = document.createElement('div'); txt.className = 'boCraftText'; txt.textContent = 'BLACK HOLE 進化完了';
+    document.body.appendChild(txt);
+    AudioSys.blackHoleCraft();
+    screenShakeXL();
+    flashOnce();
+    craftFlashPanel();
+    setTimeout(()=>{ v.remove(); txt.remove(); }, 2200);
+  }
+
+  function craftHaveText(reqs){
+    // reqs: array of [name, need]
+    return reqs.map(([name, need])=>{
+      const have = matCount(name);
+      return `${name} ${have}/${need}`;
+    }).join(' ・ ');
+  }
+  function renderCraftUI(){
+    const gEl = document.getElementById('craftHaveGantlet');
+    if(gEl){
+      gEl.textContent = craftedItems.elementGantlet ? '作成済み（常時Luck+5%適用中）' : '所持: ' + craftHaveText([['EPIC',1],['LEGENDARY',1]]);
+      gEl.classList.toggle('short', !craftedItems.elementGantlet && (matCount('EPIC')<1 || matCount('LEGENDARY')<1));
+    }
+    const fEl = document.getElementById('craftHaveFlame');
+    if(fEl){
+      fEl.textContent = craftedItems.flameSword ? '作成済み（常時Luck+10%適用中）' : '所持: ' + craftHaveText([['CRYSTAL',1],['FIRE',1]]);
+      fEl.classList.toggle('short', !craftedItems.flameSword && (matCount('CRYSTAL')<1 || matCount('FIRE')<1));
+    }
+    const bEl = document.getElementById('craftHaveBlizzard');
+    if(bEl){
+      bEl.textContent = craftedItems.blizzardSword ? '作成済み（常時Luck+15%適用中）' : '所持: ' + craftHaveText([['CRYSTAL',1],['ICE',1]]);
+      bEl.classList.toggle('short', !craftedItems.blizzardSword && (matCount('CRYSTAL')<1 || matCount('ICE')<1));
+    }
+    const cdEl = document.getElementById('craftHaveCompressedDirt');
+    if(cdEl){ cdEl.textContent = craftedItems.compressedDirt ? '作成済み（図鑑から装備可能・Luck x6.5）' : '所持: ' + craftHaveText([['DIRT',300]]); cdEl.classList.toggle('short', !craftedItems.compressedDirt && matCount('DIRT')<300); }
+    const dlEl = document.getElementById('craftHaveDemonicLump');
+    if(dlEl){ dlEl.textContent = craftedItems.demonicLump ? '作成済み（装備Luck x22.0）' : '所持: ' + craftHaveText([['COMPRESSED DIRT',3]]); dlEl.classList.toggle('short', !craftedItems.demonicLump && matCount('COMPRESSED DIRT')<3); }
+
+    const bhEl = document.getElementById('craftHaveBlackHole');
+    if(bhEl){
+      bhEl.textContent = '所持: ' + craftHaveText([['DARKNESS',3]]) + (coll['BLACK HOLE'] && coll['BLACK HOLE'].unlocked ? `（現在 ${coll['BLACK HOLE'].count||0} 個所持）` : '');
+      bhEl.classList.toggle('short', matCount('DARKNESS')<3);
+    }
+    const obEl = document.getElementById('craftHaveObsidian');
+    if(obEl){
+      obEl.textContent = '所持: ' + craftHaveText([['STONE',1],['BREAK',1]]) + (coll['OBSIDIAN'] && coll['OBSIDIAN'].unlocked ? `（現在 ${coll['OBSIDIAN'].count||0} 個所持）` : '');
+      obEl.classList.toggle('short', matCount('STONE')<1 || matCount('BREAK')<1);
+    }
+
+    const lpEl=document.getElementById('craftHaveLightningPotion'); if(lpEl){lpEl.textContent='所持: WATER '+matCount('WATER')+'/1 ・ LIGHTNING '+matCount('LIGHTNING')+'/1 ・ 完成済み '+inventoryItems.lightningPotion; lpEl.classList.toggle('short',matCount('WATER')<1||matCount('LIGHTNING')<1);}
+    const medEl=document.getElementById('craftHaveMedicine'); if(medEl){medEl.textContent='所持: BLOOD '+matCount('BLOOD')+'/1 ・ GRASS '+matCount('GRASS')+'/1 ・ 完成済み '+inventoryItems.medicine; medEl.classList.toggle('short',matCount('BLOOD')<1||matCount('GRASS')<1);}
+    const huEl=document.getElementById('craftHaveHuman'); if(huEl){huEl.textContent='所持: MEDICINE '+inventoryItems.medicine+'/1 ・ ZOMBIE '+matCount('ZOMBIE')+'/1'; huEl.classList.toggle('short',inventoryItems.medicine<1||matCount('ZOMBIE')<1);}
+    const lpBtn=document.getElementById('craftLightningPotionBtn'); if(lpBtn){lpBtn.disabled=false;lpBtn.textContent='クラフトする';}
+    const medBtn=document.getElementById('craftMedicineBtn'); if(medBtn){medBtn.disabled=false;medBtn.textContent='クラフトする';}
+    const huBtn=document.getElementById('craftHumanBtn'); if(huBtn){huBtn.disabled=!!(coll['HUMAN']&&coll['HUMAN'].unlocked);huBtn.textContent=huBtn.disabled?'錬成済み':'錬成する';}
+    const gBtn = document.getElementById('craftGantletBtn');
+    if(gBtn){ gBtn.disabled = craftedItems.elementGantlet; gBtn.textContent = craftedItems.elementGantlet ? '作成済み' : 'クラフトする'; }
+    const fBtn = document.getElementById('craftFlameBtn');
+    if(fBtn){ fBtn.disabled = craftedItems.flameSword; fBtn.textContent = craftedItems.flameSword ? '作成済み' : 'クラフトする'; }
+    const bBtn = document.getElementById('craftBlizzardBtn');
+    if(bBtn){ bBtn.disabled = craftedItems.blizzardSword; bBtn.textContent = craftedItems.blizzardSword ? '作成済み' : 'クラフトする'; }
+    const swordDefs=[['stoneSword','craftHaveStoneSword','THE SWORD',1,'STONE',1,'craftStoneSwordBtn'],['woodSword','craftHaveWoodSword','THE SWORD',1,'WOOD',1,'craftWoodSwordBtn'],['diamondSword','craftHaveDiamondSword','THE SWORD',1,'DIAMOND',1,'craftDiamondSwordBtn']];
+    swordDefs.forEach(([id,hid,n1,c1,n2,c2,bid])=>{const h=document.getElementById(hid);if(h)h.textContent=craftedItems[id]?'作成済み（武器スロットから装備可能）':'所持: '+craftHaveText([[n1,c1],[n2,c2]]);const b=document.getElementById(bid);if(b){b.disabled=craftedItems[id];b.textContent=craftedItems[id]?'作成済み':'クラフトする';}});
+    const cdBtn=document.getElementById('craftCompressedDirtBtn'); if(cdBtn){cdBtn.disabled=craftedItems.compressedDirt; cdBtn.textContent=craftedItems.compressedDirt?'作成済み':'圧縮する';}
+    const dlBtn=document.getElementById('craftDemonicLumpBtn'); if(dlBtn){dlBtn.disabled=craftedItems.demonicLump; dlBtn.textContent=craftedItems.demonicLump?'作成済み':'究極進化';}
+    const weaponNames={flameSword:'FLAME SWORD',blizzardSword:'BLIZZARD SWORD',stoneSword:'STONE SWORD',woodSword:'WOOD SWORD',diamondSword:'DIAMOND SWORD'};
+    document.querySelectorAll('.weaponEquipBtn').forEach(btn=>{ const id=btn.dataset.weapon; btn.disabled=!weaponOwned(id); btn.textContent=(equippedWeapon===id)?'装備中: '+weaponNames[id]:'装備: '+weaponNames[id]; });
+    const ws=document.getElementById('weaponSlotStatus'); if(ws) ws.textContent=equippedWeapon==='NONE'?'武器スロット: 空':'武器スロット: '+equippedWeapon.toUpperCase();
+  }
+
+  document.getElementById('craftGantletBtn').addEventListener('click', craftElementGantlet);
+  document.getElementById('craftFlameBtn').addEventListener('click', craftFlameSword);
+  document.getElementById('craftBlizzardBtn').addEventListener('click', craftBlizzardSword);
+  document.getElementById('craftStoneSwordBtn').addEventListener('click', craftStoneSword);
+  document.getElementById('craftWoodSwordBtn').addEventListener('click', craftWoodSword);
+  document.getElementById('craftDiamondSwordBtn').addEventListener('click', craftDiamondSword);
+  document.getElementById('craftCompressedDirtBtn').addEventListener('click', craftCompressedDirt);
+  document.getElementById('craftDemonicLumpBtn').addEventListener('click', craftDemonicLump);
+  document.getElementById('craftLightningPotionBtn').addEventListener('click', craftLightningPotion);
+  document.getElementById('craftMedicineBtn').addEventListener('click', craftMedicine);
+  document.getElementById('craftHumanBtn').addEventListener('click', craftHuman);
+  document.getElementById('useLightningPotionBtn').addEventListener('click', useLightningPotion);
+  renderItemsUI();
+  setInterval(()=>{ updatePotionTimer(); if(lightningPotionUntil && performance.now()>=lightningPotionUntil){ lightningPotionUntil=0; updateHUD(); } },250);
+  document.querySelectorAll('.weaponEquipBtn').forEach(btn=>btn.addEventListener('click',()=>equipWeapon(btn.dataset.weapon)));
+  document.getElementById('craftBlackHoleBtn').addEventListener('click', craftBlackHoleEvolution);
+  document.getElementById('craftObsidianBtn').addEventListener('click', gambleObsidian);
+
+  // ======= Particles + idle loop =======
+  // Keep visual animation at full rate, but throttle DOM-heavy HUD work.
+  let last = performance.now();
+  let lastHud = 0;
+  let hudDirty = true;
+  function loop(now){
+    const dt = Math.min(0.05, (now - last)/1000); last = now;
+
+    // idle money
+    if(autoMoneyRate > 0){
+      autoAccMoney += dt * autoMoneyRate;
+      if(autoAccMoney >= 1){
+        const add = Math.floor(autoAccMoney);
+        autoAccMoney -= add;
+        addMoney(add);
+        if(Math.random() < 0.2){
+          coinPop('+'+fmt(add), 40 + Math.random()*40, innerHeight - 120 - Math.random()*30, '#9ddc5f', (Math.random()*40-20));
+        }
+      }
+    }
+
+    // drone drops
+    droneDropAcc += dt;
+    if(droneLv > 0 && droneDropAcc >= droneDropInterval){
+      droneDropAcc = 0;
+      const amount = Math.floor((5 + 6*droneLv) * unitMult);
+      addMoney(amount);
+      AudioSys.droneDrop();
+      const x = innerWidth*0.12 + Math.random()*innerWidth*0.76;
+      const y = innerHeight*0.2 + Math.random()*innerHeight*0.4;
+      coinFountain(amount, x, y);
+      droneStatus.textContent = 'DRONE: DELIVERY +' + fmt(amount);
+      setTimeout(()=>droneStatus.textContent='DRONE: Standby', 1200);
+    }
+
+    // Mega screen quake (triggered by 1/5000+ ultra rare confirmation)
+    if(screenShakeTime > 0){
+      document.body.classList.add('megaQuake');
+      screenShakeTime--;
+      if(screenShakeTime <= 0){
+        document.body.classList.remove('megaQuake');
+        document.body.style.transform = '';
+      }
+    }
+
+    drawParticles(dt);
+    if(hudDirty && (now - lastHud >= 100 || lastHud === 0)){
+      updateHUD(false);
+      lastHud = now;
+      hudDirty = false;
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  // ======= Odds + Dex rendering (Luck multiplier applied) =======
+  function renderOdds(){
+    const frag = document.createDocumentFragment();
+    oddsList.innerHTML = '';
+    const displayOrder = [...AURAS].reverse();
+    displayOrder.forEach(a=>{
+      const row = document.createElement('div');
+      row.className = 'row';
+      const left = document.createElement('div');
+      let cls = a.classText;
+      if(a.name==='GOD') cls='nG'; else if(a.name==='DARKNESS') cls='nD';
+      else if(a.name==='FIRE') cls='nFire'; else if(a.name==='SNOW') cls='nSnow'; else if(a.name==='ICE') cls='nIce'; else if(a.name==='LUCKY') cls='nLucky';
+      left.className = 'oddName ' + cls;
+      const dotClass = (a.name==='GOD')?'dG':(a.name==='DARKNESS')?'dD':(a.name==='FIRE')?'dFire':(a.name==='SNOW')?'dSnow':(a.name==='ICE')?'dIce':(a.name==='LUCKY')?'dLucky':a.classDot;
+      const dot = document.createElement('span'); dot.className = 'dot ' + dotClass;
+      left.appendChild(dot);
+      const name = document.createElement('span'); name.textContent = a.name;
+      left.appendChild(name);
+
+      const right = document.createElement('div');
+      const base = a.denom;
+      const eff = boostedDenom(a);
+      const isBlackHole = (a.name==='BLACK HOLE');
+      const isObsidian = (a.name==='OBSIDIAN');
+      const isCraftOnly = a.rollable === false || isBlackHole || isObsidian;
+      const isProTyper = (a.name==='PRO TYPER');
+      const baseTxt = isCraftOnly ? '排出なし' : (isProTyper ? '1/∞' : (base===1.2? '1/1.2' : '1/'+base.toLocaleString('en-US')));
+      const craftHint = isBlackHole ? 'DARKNESS x3 クラフト限定' : (isObsidian ? 'STONE+BREAK ギャンブル限定(10%)' : (a.name==='COMPRESSED DIRT' ? 'DIRT x300 クラフト限定' : (a.name==='DEMONIC LUMP' ? 'COMPRESSED DIRT x3 クラフト限定' : 'クラフト限定')));
+      const effTxt = (a.name==='COMMON') ? baseTxt : (isCraftOnly ? craftHint : ('1/'+roundDen(eff)));
+      const arrow = (a.name==='COMMON') ? '' : (isCraftOnly ? ' → ' + effTxt : ' → ' + effTxt + ` (Luck x${totalLuck().toFixed(2)})`);
+      right.innerHTML = `<span class="tagM">倍率 x${a.mult}</span> <span>${baseTxt}${arrow}</span>`;
+      row.appendChild(left); row.appendChild(right);
+      frag.appendChild(row);
+    });
+    // Rainbow Frame (unlock-only)
+    const rowRB = document.createElement('div');
+    rowRB.className='row';
+    const leftRB = document.createElement('div'); leftRB.className='oddName nRB';
+    const dotRB = document.createElement('span'); dotRB.className='dot dRB'; leftRB.appendChild(dotRB);
+    const nameRB = document.createElement('span'); nameRB.textContent = RAINBOW_KEY; leftRB.appendChild(nameRB);
+    const rightRB = document.createElement('div');
+    rightRB.innerHTML = `<span class="tagM">倍率 x—</span> <span>1/???（ミッション10限定）</span>`;
+    rowRB.appendChild(leftRB); rowRB.appendChild(rightRB);
+    frag.appendChild(rowRB);
+
+    oddsList.appendChild(frag);
+  }
+  function renderDex(){
+    dex.innerHTML = '';
+    // COMMON -> ... plus RAINBOW at bottom
+    const order = [...AURAS].reverse();
+    order.push({name:RAINBOW_KEY, color:'var(--lucky)', classDot:'dRB'});
+    order.forEach(a=>{
+      const it = document.createElement('div');
+      it.className = 'dexItem';
+      const main = document.createElement('div'); main.className='dexMain';
+      let dotClass = a.classDot;
+      if(a.name==='GOD') dotClass='dG'; else if(a.name==='DARKNESS') dotClass='dD';
+      else if(a.name==='FIRE') dotClass='dFire'; else if(a.name==='SNOW') dotClass='dSnow'; else if(a.name==='ICE') dotClass='dIce'; else if(a.name==='LUCKY') dotClass='dLucky'; else if(a.name===RAINBOW_KEY) dotClass='dRB';
+      const dot = document.createElement('span'); dot.className='dot ' + dotClass; main.appendChild(dot);
+      const nm = document.createElement('span'); nm.className='dexName';
+      const c = coll[a.name] || {count:0, unlocked:false};
+      if(c.unlocked){
+        nm.textContent = a.name + (AURA_INDEX[a.name]!=null? ` (x${AURAS[AURA_INDEX[a.name]].mult})` : '');
+        nm.classList.add('unlocked');
+      }else{
+        if(a.name===RAINBOW_KEY) nm.textContent = '??? (1/???)';
+        else if(a.name==='BLACK HOLE') nm.textContent = '??? (排出なし/クラフト専用)';
+        else if(a.name==='OBSIDIAN') nm.textContent = '??? (排出なし/ギャンブル専用)';
+         else if(a.rollable===false) nm.textContent = `??? (1/${a.denom.toLocaleString('en-US')}・クラフト限定)`;
+        else if(a.name==='PRO TYPER') nm.textContent = '??? (1/∞)';
+        else{
+          const base = (AURA_INDEX[a.name]!=null)? AURAS[AURA_INDEX[a.name]].denom : '???';
+          nm.textContent = `??? (1/${(typeof base==='number'?base.toLocaleString('en-US'):base)})`;
+        }
+        nm.classList.add('locked');
+      }
+      main.appendChild(nm);
+
+      const right = document.createElement('div'); right.className='dexStat';
+      right.textContent = `獲得数: ${c.count||0}`;
+
+      const btn = document.createElement('button');
+      if(c.unlocked){
+        if(equippedAura === a.name){
+          btn.textContent = 'Unequip';
+          btn.className = 'unBtn';
+          btn.dataset.action = 'unequip';
+          btn.dataset.aura = a.name;
+        }else{
+          btn.textContent = 'Equip';
+          btn.className = 'eqBtn';
+          btn.dataset.action = 'equip';
+          btn.dataset.aura = a.name;
+        }
+      }else{
+        btn.textContent = 'Locked';
+        btn.disabled = true;
+        btn.className = 'eqBtn';
+      }
+
+      it.appendChild(main);
+      it.appendChild(right);
+      it.appendChild(btn);
+      dex.appendChild(it);
+    });
+  }
+  dex.addEventListener('click', function(e){
+    const btn = e.target;
+    if(!(btn instanceof HTMLButtonElement)) return;
+    const act = btn.dataset.action;
+    const aura = btn.dataset.aura;
+    if(!act || !aura) return;
+    if(act==='equip'){
+      setEquippedAura(aura);
+    }else if(act==='unequip'){
+      setEquippedAura('NONE');
+    }
+  });
+
+  // ======= Equip visuals =======
+  function setEquippedAura(name){
+    equippedAura = name;
+    saveEquip();
+    applyEquipVisuals();
+    updateHUD();
+  }
+  function applyEquipVisuals(){
+    equipFx.className = '';
+    equipFx.id='equipFx';
+    borderWave.style.animationDuration = '6s';
+    let col = '#00ffc8';
+    let wave = 'conic-gradient(from 0deg, rgba(0,255,200,.35), rgba(0,180,255,.35), rgba(0,255,154,.35), rgba(0,255,200,.35))';
+    equipFx.classList.remove('fx-rainbow');
+    switch(equippedAura){
+      case 'COMMON': equipFx.classList.add('fx-common'); col = '#00ffa6'; break;
+      case 'UNCOMMON': equipFx.classList.add('fx-uncommon'); col = '#6cf9ff'; wave='conic-gradient(from 0deg, rgba(108,249,255,.32), rgba(0,180,255,.28), rgba(108,249,255,.32))'; break;
+      case 'RARE': equipFx.classList.add('fx-rare'); col = '#3aa0ff'; wave='conic-gradient(from 0deg, rgba(58,160,255,.33), rgba(10,120,255,.28), rgba(58,160,255,.33))'; break;
+      case 'EPIC': equipFx.classList.add('fx-epic'); col = '#a96cff'; wave='conic-gradient(from 0deg, rgba(169,108,255,.35), rgba(130,60,255,.3), rgba(169,108,255,.35))'; break;
+      case 'LEGENDARY': equipFx.classList.add('fx-legendary'); col = '#ff9f42'; wave='conic-gradient(from 0deg, rgba(255,159,66,.37), rgba(255,120,40,.3), rgba(255,159,66,.37))'; break;
+      case 'MYTHICAL': equipFx.classList.add('fx-mythical'); col = '#ff5ac8'; wave='conic-gradient(from 0deg, rgba(255,90,200,.37), rgba(200,40,180,.3), rgba(255,90,200,.37))'; break;
+      case 'CELESTIAL': equipFx.classList.add('fx-celestial'); col = '#eaf6ff'; wave='conic-gradient(from 0deg, rgba(234,246,255,.38), rgba(180,200,255,.3), rgba(234,246,255,.38))'; break;
+      case 'GOD': equipFx.classList.add('fx-god'); col = '#ffd642'; wave='conic-gradient(from 0deg, rgba(255,214,66,.45), rgba(255,200,40,.35), rgba(255,214,66,.45))'; borderWave.style.animationDuration='4.5s'; break;
+      case 'DARKNESS': equipFx.classList.add('fx-darkness'); col = '#6d00a3'; wave='conic-gradient(from 0deg, rgba(64,0,128,.45), rgba(30,0,60,.35), rgba(64,0,128,.45))'; break;
+      case 'ELEMENT': equipFx.classList.add('fx-element'); col = '#32ff77'; wave='conic-gradient(from 0deg, rgba(255,0,0,.35), rgba(0,255,0,.35), rgba(0,0,255,.35), rgba(255,255,0,.35), rgba(255,0,255,.35), rgba(0,255,255,.35))'; borderWave.style.animationDuration='3.5s'; break;
+      case 'FIRE': equipFx.classList.add('fx-fire'); col = '#ff3d3d'; wave='conic-gradient(from 0deg, rgba(255,61,61,.42), rgba(255,120,40,.35), rgba(255,61,61,.42))'; break;
+      case 'SNOW': equipFx.classList.add('fx-snow'); col = '#eaf6ff'; wave='conic-gradient(from 0deg, rgba(234,246,255,.42), rgba(200,220,255,.35), rgba(234,246,255,.42))'; break;
+      case 'ICE': equipFx.classList.add('fx-ice'); col = '#8fe3ff'; wave='conic-gradient(from 0deg, rgba(143,227,255,.42), rgba(100,200,255,.35), rgba(143,227,255,.42))'; break;
+      case 'LUCKY': equipFx.classList.add('fx-lucky'); col = '#ffd700'; wave='conic-gradient(from 0deg, rgba(255,215,0,.42), rgba(255,240,120,.35), rgba(255,215,0,.42))'; borderWave.style.animationDuration='4s'; break;
+      case 'GLITCH': equipFx.classList.add('fx-glitch'); col = '#ff0055'; wave='conic-gradient(from 0deg, rgba(255,0,85,.4), rgba(255,0,150,.3), rgba(255,0,85,.4))'; borderWave.style.animationDuration='2s'; break;
+      case 'TIME LEAP': equipFx.classList.add('fx-timeleap'); col = '#00ffaa'; wave='conic-gradient(from 0deg, rgba(0,255,170,.4), rgba(0,200,255,.3), rgba(0,255,170,.4))'; break;
+      case 'CAT NIGHT': equipFx.classList.add('fx-catnight'); col = '#ffaa00'; wave='conic-gradient(from 0deg, rgba(255,170,0,.4), rgba(255,120,0,.3), rgba(255,170,0,.4))'; break;
+      case 'SUPERNOVA': equipFx.classList.add('fx-supernova'); col = '#ffaaee'; wave='conic-gradient(from 0deg, rgba(255,170,238,.42), rgba(200,100,255,.32), rgba(255,170,238,.42))'; borderWave.style.animationDuration='3s'; break;
+      case 'ULTIMATE': equipFx.classList.add('fx-ultimate'); col = '#ff0000'; wave='conic-gradient(from 0deg, rgba(255,0,0,.5), rgba(150,0,0,.4), rgba(255,0,0,.5))'; borderWave.style.animationDuration='1.5s'; break;
+      case 'BLACK HOLE': equipFx.classList.add('fx-blackhole'); col = '#a800ff'; wave='conic-gradient(from 0deg, rgba(168,0,255,.5), rgba(0,0,0,.5), rgba(168,0,255,.5))'; borderWave.style.animationDuration='5s'; break;
+      case 'OBSIDIAN': equipFx.classList.add('fx-obsidian'); col = '#7b2fff'; wave='conic-gradient(from 0deg, rgba(123,47,255,.5), rgba(0,0,0,.55), rgba(123,47,255,.5))'; borderWave.style.animationDuration='5.5s'; break;
+      case 'WOOD': equipFx.classList.add('fx-dirt'); col='#8b4513'; wave='conic-gradient(from 0deg, rgba(139,69,19,.42), rgba(101,67,33,.25), rgba(139,69,19,.42))'; break;
+      case 'THE SWORD': equipFx.classList.add('fx-celestial'); col='#e6e6fa'; break;
+      case 'DIAMOND': equipFx.classList.add('fx-water'); col='#b0e0e6'; wave='conic-gradient(from 0deg, rgba(176,224,230,.48), rgba(255,255,255,.35), rgba(176,224,230,.48))'; break;
+      case 'STONE': equipFx.classList.add('fx-stone'); col = '#9c9c9c'; wave='conic-gradient(from 0deg, rgba(156,156,156,.32), rgba(120,120,120,.26), rgba(156,156,156,.32))'; break;
+      case 'DIRT': equipFx.classList.add('fx-dirt'); col = '#654321'; wave='conic-gradient(from 0deg, rgba(101,67,33,.40), rgba(139,69,19,.28), rgba(101,67,33,.40))'; break;
+      case 'GRASS': equipFx.classList.add('fx-grass'); col = '#00ff00'; wave='conic-gradient(from 0deg, rgba(0,255,0,.42), rgba(120,255,120,.28), rgba(0,255,0,.42))'; break;
+      case 'BLOOD': equipFx.classList.add('fx-blood'); col = '#8a0000'; wave='conic-gradient(from 0deg, rgba(138,0,0,.55), rgba(255,30,30,.25), rgba(138,0,0,.55))'; break;
+      case 'HUMAN': equipFx.classList.add('fx-human'); col = '#ffffff'; wave='conic-gradient(from 0deg, rgba(255,255,255,.7), rgba(210,235,255,.4), rgba(255,255,255,.7))'; borderWave.style.animationDuration='1.1s'; break;
+      case 'WATER': equipFx.classList.add('fx-water'); col = '#00bfff'; wave='conic-gradient(from 0deg, rgba(0,191,255,.42), rgba(0,255,255,.30), rgba(0,191,255,.42))'; break;
+      case 'LIGHTNING': equipFx.classList.add('fx-lightning'); col = '#ffff00'; wave='conic-gradient(from 0deg, rgba(255,255,0,.55), rgba(255,255,255,.38), rgba(255,255,0,.55))'; borderWave.style.animationDuration='0.65s'; break;
+      case 'COMPRESSED DIRT': equipFx.classList.add('fx-compressed-dirt'); col = '#8b6f47'; wave='conic-gradient(from 0deg, rgba(139,111,71,.50), rgba(101,67,33,.30), rgba(139,111,71,.50))'; borderWave.style.animationDuration='2s'; break;
+      case 'DEMONIC LUMP': equipFx.classList.add('fx-demonic-lump'); col = '#6a0dad'; wave='conic-gradient(from 0deg, rgba(255,255,255,.42), rgba(106,13,173,.55), rgba(0,0,0,.65), rgba(255,255,255,.42))'; borderWave.style.animationDuration='0.7s'; break;
+      case 'BREAK': equipFx.classList.add('fx-break'); col = '#c97a2b'; wave='conic-gradient(from 0deg, rgba(201,122,43,.34), rgba(160,90,30,.26), rgba(201,122,43,.34))'; break;
+      case 'CRYSTAL': equipFx.classList.add('fx-crystal'); col = '#7fdfff'; wave='conic-gradient(from 0deg, rgba(127,223,255,.36), rgba(90,180,255,.28), rgba(127,223,255,.36))'; break;
+      case 'PRO TYPER': equipFx.classList.add('fx-protyper'); col = '#ffffff'; wave='conic-gradient(from 0deg, var(--rainbow1),var(--rainbow2),var(--rainbow3),var(--rainbow4),var(--rainbow5),var(--rainbow6))'; borderWave.style.animationDuration='1s'; break;
+      case 'ZOMBIE': equipFx.classList.add('fx-zombie'); col = '#39ff14'; wave='conic-gradient(from 0deg, rgba(57,255,20,.5), rgba(10,60,5,.4), rgba(57,255,20,.5))'; borderWave.style.animationDuration='3.2s'; break;
+      case 'BERSERK': equipFx.classList.add('fx-berserk'); col = '#ff0000'; wave='conic-gradient(from 0deg, rgba(255,0,0,.55), rgba(80,0,0,.4), rgba(255,0,0,.55))'; borderWave.style.animationDuration='1.2s'; break;
+      case 'OVERLORD': equipFx.classList.add('fx-overlord'); col = '#800000'; wave='conic-gradient(from 0deg, rgba(128,0,0,.6), rgba(0,0,0,.6), rgba(128,0,0,.6))'; borderWave.style.animationDuration='0.9s'; break;
+      case 'RAINBOW FRAME': equipFx.classList.add('fx-rainbow'); col = '#ffffff'; wave='conic-gradient(from 0deg, var(--rainbow1),var(--rainbow2),var(--rainbow3),var(--rainbow4),var(--rainbow5),var(--rainbow6))'; borderWave.style.animationDuration='3s'; break;
+      case 'NONE': default: equipFx.classList.add('fx-common'); col = '#00ffa6'; break;
+    }
+    playBox.style.border = `1px solid ${col}55`;
+    playBox.style.boxShadow = `0 0 40px ${col}22, inset 0 0 60px ${col}22`;
+    const badge = document.getElementById('equipBadge');
+    badge.style.background = `linear-gradient(90deg, ${col}, ${col})`;
+    badge.style.color = '#000';
+    borderWave.style.background = wave;
+  }
+
+  // ======= Start immediately =======
+  function startImmediate(){
+    nextTarget();
+    updateShop();
+    applyEquipVisuals();
+    renderMissionUI();
+    renderCraftUI();
+    renderAchievements();
+    updateHUD();
+  }
+
+  // ======= Initialize =======
+  startImmediate();
+
+  // ======= Input hooking: ensure audio on click (mobile) =======
+  document.body.addEventListener('pointerdown', ()=>AudioSys.ensure(), {passive:true});
+});
+</script>
+
+<script>
+(()=>{
+  const overlay=document.getElementById('deviceStart');
+  if(!overlay)return;
+  const choices=[...overlay.querySelectorAll('.dsChoice')];
+  const start=document.getElementById('dsStart');
+  let selected=null;
+  choices.forEach(btn=>btn.addEventListener('click',()=>{
+    selected=btn.dataset.device;
+    choices.forEach(x=>x.classList.toggle('selected',x===btn));
+    start.classList.add('ready');
+    start.textContent=selected==='pc'?'パソコンでスタート':'スマホでスタート';
+  }));
+  start.addEventListener('click',()=>{
+    if(!selected)return;
+    document.body.classList.remove('device-pc','device-mobile');
+    document.body.classList.add('device-'+selected);
+    try{localStorage.setItem('solsRngDevice',selected)}catch(e){}
+    overlay.classList.add('hidden');
+    setTimeout(()=>overlay.remove(),260);
+  });
+})();
+</script>
+
+<!-- ===== Craft / Achievements / Missions modal controller ===== -->
+<!-- Pure UI toggling only: opens/closes the existing panels as centered pop-ups.
+     Does not touch typing judgment, aura roll logic, mission/achievement unlock logic,
+     or craft consumption logic in any way — those keep updating the same DOM by id
+     exactly as before, whether the panel is visible or hidden. -->
+<script>
+function $(id){ return document.getElementById(id); }
+
+function openModalPanel(id){
+  try{
+    var backdrop = $('modalBackdrop');
+    var panelIds = ['craftPanel','achievements','missions','itemsPanel'];
+    panelIds.forEach(function(p){
+      if(p !== id){
+        var other = $(p);
+        if(other){ other.classList.remove('modalOpen'); other.style.display = 'none'; }
+      }
+    });
+    var el = $(id);
+    if(!el) return;
+    el.style.display = 'flex';           // explicit display:flex switch, as required
+    el.classList.add('modalOpen');       // adds the fixed/centered/glow styling + fade-in animation
+    if(backdrop){ backdrop.style.display = 'block'; backdrop.classList.add('open'); }
+    document.body.classList.add('modalNoScroll');
+  }catch(err){ console.error('openModalPanel error:', err); }
+}
+
+function closeModalPanel(id){
+  try{
+    var el = $(id);
+    if(el){ el.classList.remove('modalOpen'); el.style.display = 'none'; }
+    var stillOpen = ['craftPanel','achievements','missions','itemsPanel'].some(function(p){
+      var other = $(p);
+      return other && other.classList.contains('modalOpen');
+    });
+    if(!stillOpen){
+      var backdrop = $('modalBackdrop');
+      if(backdrop){ backdrop.classList.remove('open'); backdrop.style.display = 'none'; }
+      document.body.classList.remove('modalNoScroll');
+    }
+  }catch(err){ console.error('closeModalPanel error:', err); }
+}
+
+function closeAllModalPanels(){
+  try{
+    ['craftPanel','achievements','missions','itemsPanel'].forEach(function(p){
+      var el = $(p);
+      if(el){ el.classList.remove('modalOpen'); el.style.display = 'none'; }
+    });
+    var backdrop = $('modalBackdrop');
+    if(backdrop){ backdrop.classList.remove('open'); backdrop.style.display = 'none'; }
+    document.body.classList.remove('modalNoScroll');
+  }catch(err){ console.error('closeAllModalPanels error:', err); }
+}
+
+window.onload = function(){
+  try{
+    var btnCraft   = document.getElementById('openCraftBtn');
+    var btnAch     = document.getElementById('openAchBtn');
+    var btnMission = document.getElementById('openMissionBtn');
+    var btnItems   = document.getElementById('openItemsBtn');
+
+    if(btnCraft)   btnCraft.addEventListener('click', function(){ openModalPanel('craftPanel'); });
+    if(btnAch)     btnAch.addEventListener('click', function(){ openModalPanel('achievements'); });
+    if(btnMission) btnMission.addEventListener('click', function(){ openModalPanel('missions'); });
+    if(btnItems) btnItems.addEventListener('click', function(){ renderItemsUI(); updatePotionTimer(); openModalPanel('itemsPanel'); });
+
+    var closeButtons = document.querySelectorAll('.modalCloseBtn');
+    closeButtons.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        closeModalPanel(btn.getAttribute('data-close'));
+      });
+    });
+
+    var backdrop = document.getElementById('modalBackdrop');
+    if(backdrop){
+      backdrop.addEventListener('click', function(){ closeAllModalPanels(); });
+    }
+
+    window.addEventListener('keydown', function(e){
+      if(e.key === 'Escape'){ closeAllModalPanels(); }
+    }, {capture:true});
+  }catch(err){
+    console.error('modal controller init error:', err);
+  }
+};
+</script>
+</script>
+</body>
+</html>
