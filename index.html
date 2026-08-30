@@ -253,7 +253,7 @@
     40%{transform:translate(calc(-50% + 18px), calc(-24% - 12px))}
     100%{transform:translate(-50%,-24%)}
   }
-  .typeBoxWrap{position:absolute;top:105px;left:50%;transform:translateX(-50%);width:min(860px,96%);max-width:860px;margin:0;z-index:50}
+  .typeBoxWrap{position:relative;left:auto;top:auto;transform:none;width:min(860px,96%);max-width:860px;margin:0 auto 10px;z-index:50}
   .typedInput{
     width:100%;box-sizing:border-box;font-family:inherit;font-size:38px;font-weight:900;text-align:center;
     letter-spacing:.1em;padding:18px 20px;border-radius:16px;color:#c8fff0;background:rgba(0,0,0,.78);
@@ -2263,10 +2263,49 @@ window.addEventListener('DOMContentLoaded', function(){
       const k = e.key.toLowerCase();
       if(!/[a-z]/.test(k)){ e.preventDefault(); return; }
       const want = cur.roRaw[pos];
-      if(k === want){
+      // Romanization expansion: accept common Japanese romanization alternatives.
+      // Only the accepted key paths are expanded; scoring, RNG, targets and UI are unchanged.
+      const suffixAliases = {
+        'shi':['i'], 'chi':['i'], 'tsu':['u'], 'fu':['u'], 'ji':['i'],
+        'she':['e'], 'che':['e'], 'je':['e'],
+        'sha':['a'], 'shu':['u'], 'sho':['o'],
+        'cha':['a'], 'chu':['u'], 'cho':['o'],
+        'ja':['a'], 'ju':['u'], 'jo':['o'],
+        'fa':['a'], 'fi':['i'], 'fe':['e'], 'fo':['o'],
+        'va':['a'], 'vi':['i'], 'vu':['u'], 've':['e'], 'vo':['o']
+      };
+      const firstAliases = {
+        'f':['h'], 'h':['f'], 'j':['z'], 'z':['j'], 'w':['o'],
+        'c':['k'], 'k':['c'], 'q':['k'],
+        's':['c'], 't':['c'], 'd':['j']
+      };
+      let advanced = false;
+
+      // Short spellings: shi -> si, chi -> ci/ti, tsu -> tu, etc.
+      for(const seq in suffixAliases){
+        if(cur.roRaw.startsWith(seq, pos) && suffixAliases[seq].includes(k)){
+          // The first letter was entered on the previous keypress; consume the remaining
+          // canonical letters represented by this shorter spelling.
+          pos += seq.length - 2;
+          onCorrect(k);
+          advanced = true;
+          break;
+        }
+      }
+
+      // Direct first-letter alternatives: fu/hu, ji/zi, wo/o, etc.
+      if(!advanced && firstAliases[want] && firstAliases[want].includes(k)){
         onCorrect(k);
-      }else{
-        onMiss();
+        if(want === 'w' && k === 'o') pos++;
+        advanced = true;
+      }
+
+      if(!advanced){
+        if(k === want){
+          onCorrect(k);
+        }else{
+          onMiss();
+        }
       }
       e.preventDefault();
     }else if(e.key === 'Backspace'){ e.preventDefault(); }
